@@ -25,4 +25,19 @@ public class CourseController {
     public Course addCourse(@RequestBody Course course) {
         return courseService.addCourse(course);
     }
+
+    // Endpoint to fetch a course by ID
+    @GetMapping("/{id}")
+    public org.springframework.http.ResponseEntity<Course> getCourseById(@PathVariable Long id) {
+        return courseService.getCourseById(id)
+            .map(org.springframework.http.ResponseEntity::ok)
+            .orElseGet(() -> org.springframework.http.ResponseEntity.notFound().build());
+    }
+
+    // Endpoint to delete a course
+    @DeleteMapping("/{id}")
+    public org.springframework.http.ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
+        courseService.deleteCourse(id);
+        return org.springframework.http.ResponseEntity.noContent().build();
+    }
 }

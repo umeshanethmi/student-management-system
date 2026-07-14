@@ -1,5 +1,6 @@
 package com.student.student_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,14 +11,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String username;
     
     private String email;
     
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     
-    // Default role is USER
-    private String role = "USER";
+    // Default role is STUDENT
+    private String role = "STUDENT";
 
     // Getters and Setters
     public Long getId() { return id; }

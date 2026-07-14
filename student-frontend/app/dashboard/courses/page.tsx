@@ -1,137 +1,176 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { BookOpen, GraduationCap, CheckCircle } from 'lucide-react';
+import { apiFetch } from '@/app/utils/api';
 
 interface Course {
-  id?: number;
-  courseName: string; // Matches Spring Boot entity variable
-  courseCode: string; // Matches Spring Boot entity variable
+  id: number;
+  courseName: string;
+  courseCode: string;
+}
+
+interface Enrollment {
+  id: number;
+  username: string;
+  courseId: number;
+  courseCode: string;
+  courseName: string;
+  instructor: string;
+  progress: number;
 }
 
 export default function CoursesPage() {
+  const [role, setRole] = useState('STUDENT');
+  const [username, setUsername] = useState('Student');
+  
+  // Catalog courses state
   const [courses, setCourses] = useState<Course[]>([]);
-  const [newCourseName, setNewCourseName] = useState('');
-  const [newCourseCode, setNewCourseCode] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // 1. Method to fetch all available courses from the backend
-  const fetchCourses = () => {
-    fetch('http://localhost:8080/api/courses')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setCourses(data);
-        }
-      })
-      .catch((err) => console.error('Error fetching courses:', err));
-  };
-
-  useEffect(() => {
-    fetchCourses();
-  }, []);
-
-  // 2. Method to handle the submission of a new course
-  const handleAddCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCourseName || !newCourseCode) return;
-
-    setLoading(true);
-    setMessage('');
-
+  // Fetch all courses from the backend catalog
+  const fetchCourses = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/courses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // Sending exactly what the backend expects
-        body: JSON.stringify({ courseName: newCourseName, courseCode: newCourseCode }),
-      });
-
-      if (response.ok) {
-        setMessage('Course added successfully! 🎉');
-        setNewCourseName('');
-        setNewCourseCode('');
-        fetchCourses(); // Dynamic list refresh
-      } else {
-        setMessage('Failed to add course.');
+      const data = await apiFetch('/api/courses');
+      if (Array.isArray(data)) {
+        setCourses(data);
       }
     } catch (err) {
-      setMessage('Error connecting to the backend.');
-    } finally {
-      setLoading(false);
+      console.error('Error fetching courses:', err);
     }
   };
 
+  // Fetch student's current enrollments
+  const fetchStudentEnrollments = async (user: string) => {
+    try {
+      const data = await apiFetch(`/api/enrollments/student/${user}`);
+      if (Array.isArray(data)) {
+        setEnrollments(data);
+      }
+    } catch (err) {
+      console.error('Error fetching student enrollments:', err);
+    }
+  };
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem('role') || 'STUDENT';
+    const storedUsername = localStorage.getItem('username') || 'Student';
+    setRole(storedRole.toUpperCase());
+    setUsername(storedUsername);
+
+    const initPage = async () => {
+      setLoading(true);
+      await fetchCourses();
+      if (storedRole.toUpperCase() === 'STUDENT') {
+        await fetchStudentEnrollments(storedUsername);
+      }
+      setLoading(false);
+    };
+
+    initPage();
+  }, []);
+
+  // Student action: enroll in a course
+  const handleEnroll = async (courseId: number, courseCode: string, courseName: string) => {
+    try {
+      await apiFetch('/api/enrollments', {
+        method: 'POST',
+        body: { 
+          username: username, 
+          courseId: courseId
+        },
+      });
+
+      // Refresh enrollments after registration
+      await fetchStudentEnrollments(username);
+      alert(`Successfully registered for ${courseName}! 🎓`);
+    } catch (err: any) {
+      console.error('Enrollment error:', err);
+      alert(err.message || 'Failed to complete registration.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-slate-400 font-bold uppercase text-xs tracking-wider animate-pulse">
+        Loading courses directory...
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Title Header */}
-      <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-        <h2 className="text-2xl font-bold text-white">📚 Course Management</h2>
-        <p className="text-sm text-slate-400 mt-1">Manage and view institutional courses dynamically</p>
+    <div className="space-y-8 max-w-5xl mx-auto p-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Header section */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-center text-[#5c4fe5] shadow-sm">
+            <GraduationCap className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-black text-slate-800">
+              Available Catalog
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Browse curriculum paths and active campus courses
+            </p>
+          </div>
+        </div>
+        <span className="text-[10px] font-black px-3 py-1 bg-slate-50 text-slate-500 rounded-full border border-slate-200 uppercase tracking-wider shrink-0">
+          {courses.length} Courses
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Form to Add a New Course */}
-        <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl h-fit">
-          <h3 className="text-lg font-semibold text-white mb-4">✨ Add New Course</h3>
-          <form onSubmit={handleAddCourse} className="space-y-4">
-            <div>
-              <label className="text-xs font-medium text-slate-300">Course Name</label>
-              <input
-                type="text"
-                required
-                value={newCourseName}
-                onChange={(e) => setNewCourseName(e.target.value)}
-                placeholder="e.g. Software Engineering"
-                className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-teal-500 focus:outline-none"
-              />
+      <div className="grid grid-cols-1 gap-8">
+        {/* Full-width Available Courses list */}
+        <div className="bg-white p-8 rounded-[2rem] border border-slate-200/80 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-[#5c4fe5]">
+              <BookOpen className="w-4.5 h-4.5" />
             </div>
-            <div>
-              <label className="text-xs font-medium text-slate-300">Course Code</label>
-              <input
-                type="text"
-                required
-                value={newCourseCode}
-                onChange={(e) => setNewCourseCode(e.target.value)}
-                placeholder="e.g. SE-3010"
-                className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-teal-500 focus:outline-none"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-teal-600 hover:bg-teal-500 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors disabled:bg-teal-800"
-            >
-              {loading ? 'Adding...' : 'Add Course'}
-            </button>
-            {message && <p className="text-xs text-center text-teal-400 mt-2">{message}</p>}
-          </form>
-        </div>
-
-        {/* Dynamic Course List Display */}
-        <div className="md:col-span-2 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-          <h3 className="text-lg font-semibold text-white mb-4">📜 Available Courses</h3>
+            <h3 className="text-md font-black text-slate-850">Available Courses</h3>
+          </div>
           
           {courses.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-6">No courses available. Add one to start!</p>
+            <div className="text-center py-12 bg-slate-550/5 border border-dashed border-slate-200 rounded-2xl text-slate-450 font-bold text-xs uppercase tracking-wider">
+              No courses cataloged yet.
+            </div>
           ) : (
-            <div className="bg-slate-700/40 rounded-xl border border-slate-700 overflow-hidden">
-              {courses.map((course) => (
-                <div
-                  key={course.id}
-                  className="flex items-center justify-between px-5 py-4 border-b border-slate-700 last:border-none text-slate-200"
-                >
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-white">{course.courseName}</span>
-                    <span className="text-xs text-slate-400 mt-0.5">Code: {course.courseCode}</span>
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-inner">
+              {courses.map((course) => {
+                const isEnrolled = enrollments.some(e => e.courseId === course.id || e.courseCode === course.courseCode);
+                return (
+                  <div
+                    key={course.id}
+                    className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 last:border-none text-slate-700 hover:bg-slate-50/40 transition-colors"
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-extrabold text-slate-850 text-sm">{course.courseName}</span>
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">Code: {course.courseCode}</span>
+                    </div>
+                    <div>
+                      {role === 'STUDENT' ? (
+                        isEnrolled ? (
+                          <span className="text-[10px] font-black bg-emerald-50 text-emerald-600 px-3.5 py-1.5 rounded-full border border-emerald-100 uppercase tracking-wider flex items-center gap-1.5">
+                            <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> Enrolled
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleEnroll(course.id, course.courseCode, course.courseName)}
+                            className="px-4 py-2 bg-[#5c4fe5] hover:bg-[#4c3ce0] text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md shadow-indigo-100 transition-all duration-200"
+                          >
+                            Enroll
+                          </button>
+                        )
+                      ) : (
+                        <span className="text-[10px] font-black bg-indigo-50 text-indigo-650 px-3 py-1 rounded-full border border-indigo-100 uppercase tracking-wider">
+                          Active
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-xs bg-teal-500/10 text-teal-400 px-2.5 py-1 rounded-full font-medium border border-teal-500/20">
-                    Active
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

@@ -1,242 +1,246 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { 
+  Users, 
+  BookOpen, 
+  GraduationCap, 
+  AlertCircle, 
+  Loader2,
+  Calendar,
+  UserCheck
+} from 'lucide-react';
+import { apiFetch } from '@/app/utils/api';
 
-// Define the Student interface matching the Spring Boot backend entity exactly
 interface Student {
   id: number;
   name: string;
   email: string;
   age: number;
+  username: string;
+}
+
+interface Course {
+  id: number;
+  courseCode: string;
+  courseName: string;
+  credits: number;
+  instructor?: string;
+  fee?: string | number;
 }
 
 export default function StudentsPage() {
+  const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
-  
-  // Form state for new student details
-  const [inputName, setInputName] = useState('');
-  const [inputEmail, setInputEmail] = useState('');
-  const [inputAge, setInputAge] = useState('');
-  
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // Added error state
+  const [error, setError] = useState('');
 
-  // Fetch all students from the backend API
-  async function fetchStudents() {
+  // Fetch students and courses from the backend APIs
+  const fetchData = async () => {
     setLoading(true);
+    setError('');
     try {
-      const response = await fetch('http://localhost:8080/api/students');
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data || []);
-      } else {
-        console.error('Failed to fetch students:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error fetching students:', error);
+      const [studentsData, coursesData] = await Promise.all([
+        apiFetch<Student[]>('/api/students'),
+        apiFetch<Course[]>('/api/courses')
+      ]);
+      setStudents(studentsData || []);
+      setCourses(coursesData || []);
+    } catch (err: any) {
+      console.error('Error fetching dashboard datasets:', err);
+      setError(err.message || 'Failed to fetch student or course records. Please check the backend connection.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }
+  };
 
-  // Fetch students initially when component mounts
   useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  // Handle form submission to add a new student
-  async function addStudent(e: React.FormEvent) {
-    e.preventDefault();
-    setErrorMessage(''); // Clear previous errors
-    
-    if (!inputName.trim() || !inputEmail.trim() || !inputAge.trim()) {
-      setErrorMessage('Please fill out all fields.');
-      return;
+    const role = localStorage.getItem('role') || 'STUDENT';
+    if (role.toUpperCase() === 'STUDENT') {
+      router.push('/dashboard');
+    } else {
+      fetchData();
     }
+  }, [router]);
 
-    try {
-      const response = await fetch('http://localhost:8080/api/students', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // These JSON properties exactly match the backend Student.java variables: name, email, age
-        body: JSON.stringify({ 
-          name: inputName.trim(), 
-          email: inputEmail.trim(), 
-          age: parseInt(inputAge, 10) 
-        }),
-      });
+  // Filter the Student List so it ONLY shows users with the 'STUDENT' role.
+  // We exclude users with admin/teacher indicators in their username, email, or name.
+  const filteredStudents = students.filter((student) => {
+    const username = (student.username || '').toLowerCase();
+    const email = (student.email || '').toLowerCase();
+    const name = (student.name || '').toLowerCase();
 
-      if (response.ok) {
-        // Clear input fields
-        setInputName('');
-        setInputEmail('');
-        setInputAge('');
-        
-        // Dynamically refresh the student list
-        fetchStudents();
-        
-        // Show success message
-        setSuccessMessage('Student added successfully! 🎉');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } else {
-        // Handle server-side errors
-        setErrorMessage(`Failed to add student. Server responded with status: ${response.status}`);
-      }
-    } catch (error) {
-      // Handle network or unexpected errors
-      console.error('Error adding student:', error);
-      setErrorMessage('A network error occurred while adding the student.');
-    }
+    const isAdmin = username.includes('admin') || email.includes('admin') || name.includes('admin');
+    const isTeacher = username.includes('teacher') || email.includes('teacher') || name.includes('teacher') || username.startsWith('aura26l');
+
+    return !isAdmin && !isTeacher;
+  });
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <Loader2 className="w-10 h-10 text-indigo-650 animate-spin" />
+        <p className="text-slate-450 text-sm font-semibold uppercase tracking-wider">Loading registry workspace...</p>
+      </div>
+    );
   }
 
-  // Handle deleting a student
-  async function deleteStudent(id: number) {
-    if (!window.confirm('Are you sure you want to delete this student?')) return;
-    
-    setErrorMessage('');
-    
-    try {
-      const response = await fetch(`http://localhost:8080/api/students/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        // Dynamically refresh the student list table
-        fetchStudents();
-        
-        // Show success message
-        setSuccessMessage('Student deleted successfully! 🗑️');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } else {
-        setErrorMessage(`Failed to delete student. Server responded with status: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Error deleting student:', error);
-      setErrorMessage('A network error occurred while deleting the student.');
-    }
+  if (error) {
+    return (
+      <div className="p-8 bg-rose-50 border border-rose-200 rounded-[2rem] text-center max-w-2xl mx-auto space-y-4">
+        <AlertCircle className="w-12 h-12 text-rose-600 mx-auto" />
+        <h3 className="text-lg font-black text-rose-800">Connection Error</h3>
+        <p className="text-rose-700 text-sm">{error}</p>
+        <button 
+          onClick={fetchData} 
+          className="px-6 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-rose-700 transition-colors shadow-md shadow-rose-100"
+        >
+          Retry Load
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
-      {/* Left side: Add New Student Form */}
-      <div className="w-full lg:w-1/3 bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700 h-fit">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white">🧑‍🎓 Add New Student</h2>
-          <p className="text-sm text-slate-400 mt-1">Enter student details to add to the system.</p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-6xl mx-auto">
+      
+      {/* Welcome / Header */}
+      <div className="p-8 rounded-[2rem] bg-gradient-to-r from-[#0d1538] via-[#090e24] to-[#0c1c4d] border border-[#1e2756]/40 relative overflow-hidden shadow-xl">
+        <div className="absolute right-0 top-0 w-96 h-full bg-gradient-to-l from-indigo-500/10 to-transparent pointer-events-none" />
+        <div className="flex items-start gap-5 relative z-10">
+          <div className="w-14 h-14 bg-[#141b3e] border border-[#232f65] rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-500/15">
+            <GraduationCap className="text-indigo-400 w-8 h-8" />
+          </div>
+          <div>
+            <span className="inline-block px-3 py-1 rounded-full bg-[#1b2554]/40 border border-[#2d3a77]/50 text-[10px] font-bold text-indigo-400 tracking-wider mb-2.5 uppercase">
+              Instructor Workspace
+            </span>
+            <h1 className="text-3xl font-black text-white leading-tight">
+              Students &amp; Courses Registry
+            </h1>
+            <p className="text-slate-450 text-sm mt-1 max-w-2xl">
+              Monitor active classroom students, browse structural course lists, and audit enrolled registrations.
+            </p>
+          </div>
         </div>
-
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mb-6 bg-emerald-900/40 text-emerald-400 border border-emerald-800 rounded-xl px-4 py-3 text-sm font-medium transition-all">
-            {successMessage}
-          </div>
-        )}
-
-        {/* Error Message */}
-        {errorMessage && (
-          <div className="mb-6 bg-red-900/40 text-red-400 border border-red-800 rounded-xl px-4 py-3 text-sm font-medium transition-all">
-            {errorMessage}
-          </div>
-        )}
-
-        <form onSubmit={addStudent} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Name</label>
-            <input
-              type="text"
-              placeholder="John Doe"
-              value={inputName}
-              onChange={(e) => setInputName(e.target.value)}
-              className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
-            <input
-              type="email"
-              placeholder="john@example.com"
-              value={inputEmail}
-              onChange={(e) => setInputEmail(e.target.value)}
-              className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Age</label>
-            <input
-              type="number"
-              placeholder="20"
-              value={inputAge}
-              onChange={(e) => setInputAge(e.target.value)}
-              min="1"
-              max="120"
-              className="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          <button type="submit" className="mt-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl px-6 py-3 transition-all">
-            Add Student
-          </button>
-        </form>
       </div>
 
-      {/* Right side: Student List Table */}
-      <div className="w-full lg:w-2/3 bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white">📋 Student List</h2>
-          <p className="text-sm text-slate-400 mt-1">View and manage all registered students.</p>
+      {/* Top Section: Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white border border-slate-200/80 rounded-[2rem] p-6 shadow-sm flex items-center gap-5 hover:border-indigo-200 transition-all duration-300">
+          <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-650 shrink-0">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-450 uppercase tracking-widest block">Total Students</span>
+            <span className="text-2xl font-black text-slate-800">{filteredStudents.length} Enrolled</span>
+          </div>
         </div>
 
-        <div className="space-y-3">
-          {loading ? (
-            <div className="text-center py-10 text-slate-400">Loading students...</div>
-          ) : students.length === 0 ? (
-            <div className="text-center py-10 bg-slate-700/30 rounded-xl border border-dashed border-slate-600 text-slate-400">
-              No students found.
-            </div>
-          ) : (
-            <div className="bg-slate-700/40 rounded-xl border border-slate-700 overflow-x-auto">
-              {/* Clean, modern dark-mode table */}
-              <table className="w-full text-left border-collapse min-w-max">
-                <thead>
-                  <tr className="border-b border-slate-600">
-                    <th className="py-4 px-5 text-sm font-semibold text-slate-300">ID</th>
-                    <th className="py-4 px-5 text-sm font-semibold text-slate-300">Name</th>
-                    <th className="py-4 px-5 text-sm font-semibold text-slate-300">Email</th>
-                    <th className="py-4 px-5 text-sm font-semibold text-slate-300">Age</th>
-                    <th className="py-4 px-5 text-sm font-semibold text-slate-300">Actions</th>
+        <div className="bg-white border border-slate-200/80 rounded-[2rem] p-6 shadow-sm flex items-center gap-5 hover:border-emerald-200 transition-all duration-300">
+          <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shrink-0">
+            <BookOpen className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-slate-450 uppercase tracking-widest block">My Courses</span>
+            <span className="text-2xl font-black text-slate-800">{courses.length} Active</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Middle Section: My Courses */}
+      <div className="bg-white border border-slate-200/80 rounded-[2rem] p-8 shadow-sm space-y-6">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
+          <BookOpen className="w-5 h-5 text-indigo-650" />
+          <h2 className="text-xl font-bold text-slate-800">My Courses</h2>
+        </div>
+
+        {courses.length === 0 ? (
+          <div className="py-12 text-center text-slate-400 font-semibold text-sm">
+            No courses cataloged in the system registry database.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {courses.map((course) => (
+              <div 
+                key={course.id} 
+                className="group bg-slate-50 border border-slate-150 rounded-[2rem] p-6 flex flex-col justify-between hover:shadow-lg hover:border-indigo-150 hover:bg-white transition-all duration-300"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-block px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-100 text-[10px] font-black text-indigo-600 tracking-wider">
+                      {course.courseCode}
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-400">
+                      {course.credits} Credits
+                    </span>
+                  </div>
+                  <h3 className="font-extrabold text-slate-800 text-base group-hover:text-indigo-650 transition-colors">
+                    {course.courseName}
+                  </h3>
+                </div>
+
+                <div className="pt-4 border-t border-slate-200/60 mt-6 flex items-center justify-between text-xs font-bold text-slate-500">
+                  <span className="font-medium">Fee: {course.fee || 'LKR 45,000'}</span>
+                  <span className="text-slate-700 bg-white border border-slate-200 px-3 py-1 rounded-full">
+                    {course.instructor || 'Staff'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Section: Student List Table (Read-Only) */}
+      <div className="bg-white border border-slate-200/80 rounded-[2rem] p-8 shadow-sm space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-2">
+            <UserCheck className="w-5 h-5 text-indigo-650" />
+            <h2 className="text-xl font-bold text-slate-800">Student Directory</h2>
+          </div>
+          <span className="text-[10px] font-black px-3 py-1 bg-slate-50 text-slate-500 rounded-full border border-slate-200 uppercase tracking-wider">
+            {filteredStudents.length} Active Students
+          </span>
+        </div>
+
+        {filteredStudents.length === 0 ? (
+          <div className="py-12 text-center text-slate-400 font-semibold text-sm">
+            No registered student records found.
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-inner">
+            <table className="w-full text-left border-collapse min-w-max">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                  <th className="py-4 px-6">ID</th>
+                  <th className="py-4 px-6">Name</th>
+                  <th className="py-4 px-6">Email</th>
+                  <th className="py-4 px-6 text-center">Age</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm font-semibold text-slate-700">
+                {filteredStudents.map((student) => (
+                  <tr 
+                    key={student.id} 
+                    className="border-b border-slate-100 last:border-none hover:bg-slate-50/40 transition-colors"
+                  >
+                    <td className="py-3.5 px-6 text-slate-400 font-mono text-xs">#{student.id}</td>
+                    <td className="py-3.5 px-6 text-slate-850 font-bold">{student.name}</td>
+                    <td className="py-3.5 px-6 text-slate-500 font-medium">{student.email}</td>
+                    <td className="py-3.5 px-6 text-center text-slate-500">
+                      {student.age > 0 ? `${student.age} y/o` : 'N/A'}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {students.map((student) => (
-                    <tr key={student.id} className="border-b border-slate-700 last:border-none hover:bg-slate-700/50 transition-colors">
-                      <td className="py-3 px-5 text-sm text-slate-400 font-mono">#{student.id}</td>
-                      <td className="py-3 px-5 text-sm font-medium text-slate-200">{student.name}</td>
-                      <td className="py-3 px-5 text-sm text-slate-400">{student.email}</td>
-                      <td className="py-3 px-5 text-sm text-slate-400">{student.age}</td>
-                      <td className="py-3 px-5 text-sm text-slate-400">
-                        <button 
-                          onClick={() => deleteStudent(student.id)}
-                          className="text-red-400 hover:text-red-300 hover:bg-red-900/30 p-2 rounded-lg transition-colors flex items-center justify-center"
-                          title="Delete Student"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
     </div>
   );
 }

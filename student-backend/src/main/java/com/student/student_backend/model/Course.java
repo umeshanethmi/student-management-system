@@ -12,6 +12,9 @@ public class Course {
 
     private String courseName;
     private String courseCode;
+    private String instructor;
+    private Integer credits;
+    private String fee;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -20,4 +23,10 @@ public class Course {
     public void setCourseName(String courseName) { this.courseName = courseName; }
     public String getCourseCode() { return courseCode; }
     public void setCourseCode(String courseCode) { this.courseCode = courseCode; }
+    public String getInstructor() { return instructor; }
+    public void setInstructor(String instructor) { this.instructor = instructor; }
+    public Integer getCredits() { return credits; }
+    public void setCredits(Integer credits) { this.credits = credits; }
+    public String getFee() { return fee; }
+    public void setFee(String fee) { this.fee = fee; }
 }

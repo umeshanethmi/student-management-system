@@ -43,7 +43,7 @@ Follow these step-by-step instructions to run the project locally on your machin
    # Mac/Linux
    ./mvnw spring-boot:run
    ```
-4. The backend server will start on `http://localhost:8080`.
+4. The backend server will start on `http://localhost:8081`.
 
 ---
 

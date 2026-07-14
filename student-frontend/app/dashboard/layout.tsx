@@ -1,110 +1,259 @@
 'use client';
 
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { 
+  LayoutDashboard, 
+  User, 
+  BookOpen, 
+  CheckCircle, 
+  GraduationCap, 
+  CreditCard, 
+  LogOut,
+  Bell,
+  Search,
+  Calendar,
+  ChevronRight,
+  MessageSquare,
+  Sparkles,
+  ChevronDown,
+  Plus,
+  Settings
+} from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [username, setUsername] = useState('User');
+  const [role, setRole] = useState('STUDENT');
+  const [currentDate, setCurrentDate] = useState('');
 
   useEffect(() => {
-    setUsername(localStorage.getItem('username') || 'User');
-  }, []);
+    // Client-side initialization
+    const token = localStorage.getItem('token');
+    const name = localStorage.getItem('username') || 'User';
+    const storedRole = localStorage.getItem('role') || 'STUDENT';
+    
+    // Require valid authentication token
+    if (!token) {
+      router.push('/login');
+      return;
+    }
 
-  function handleLogout() {
-    localStorage.clear();
-    router.push('/login');
+    setUsername(name);
+    setRole(storedRole.toUpperCase());
+    setIsAuthorized(true);
+    
+    const dateOptions: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    };
+    setCurrentDate(new Date().toLocaleDateString('en-US', dateOptions));
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('role');
+    router.push('/'); // Redirect to landing page (/) as per Tech Lead requirements
+  };
+
+  const getMenuItems = (userRole: string) => {
+    const roleUpper = userRole.toUpperCase();
+    
+    // Core navigation items required for all roles
+    const items = [];
+    if (roleUpper === 'TEACHER') {
+      items.push(
+        { id: 'Attendance', path: '/dashboard/teacher', icon: CheckCircle, label: 'Attendance' }
+      );
+    } else {
+      items.push(
+        { id: 'Dashboard', path: roleUpper === 'ADMIN' ? '/admin/dashboard' : '/dashboard', icon: LayoutDashboard, label: 'Dashboard' }
+      );
+    }
+    items.push(
+      { id: 'Courses', path: '/dashboard/courses', icon: BookOpen, label: 'Courses' }
+    );
+
+    // Conditionally show Students link for ADMIN and TEACHER only
+    if (roleUpper === 'ADMIN' || roleUpper === 'TEACHER') {
+      items.splice(1, 0, { id: 'Students', path: '/dashboard/students', icon: User, label: 'Students' });
+    }
+
+    // Role-based conditional menus
+    if (roleUpper === 'STUDENT') {
+      items.push(
+        { id: 'Assignments', path: '/dashboard/assignments', icon: BookOpen, label: 'Assignments' },
+        { id: 'Notifications', path: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
+        { id: 'Settings', path: '/dashboard/settings', icon: Settings, label: 'Settings' },
+      );
+    } else if (roleUpper === 'TEACHER') {
+      items.push(
+        { id: 'Grading', path: '/dashboard/teacher/grading', icon: GraduationCap, label: 'Grading Portal' },
+        { id: 'Assignments', path: '/dashboard/teacher/assignments', icon: BookOpen, label: 'Assignments' },
+        { id: 'Settings', path: '/dashboard/settings', icon: Settings, label: 'Settings' },
+      );
+    } else if (roleUpper === 'ADMIN') {
+      items.push(
+        { id: 'ManageUsers', path: '/admin/dashboard', icon: Sparkles, label: 'Manage Users' },
+        { id: 'Settings', path: '/dashboard/settings', icon: Settings, label: 'Settings' },
+      );
+    }
+
+    return items;
+  };
+
+  const menuItems = getMenuItems(role);
+
+  const userInitials = username
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'U';
+
+  const getPortalLabel = (userRole: string) => {
+    switch (userRole.toUpperCase()) {
+      case 'ADMIN': return 'Admin Portal';
+      case 'TEACHER': return 'Teacher Portal';
+      default: return 'Student Portal';
+    }
+  };
+
+  if (!isAuthorized) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#0b0e1e]">
+        <div className="w-10 h-10 border-4 border-[#5c4fe5] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-400 text-sm font-semibold mt-4">Verifying session...</p>
+      </div>
+    );
   }
 
-  const navLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: (
-      <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    )},
-    { name: 'Students', href: '/dashboard/students', icon: (
-      <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    )},
-    { name: 'Courses', href: '/dashboard/courses', icon: (
-      <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-    )}
-  ];
-
   return (
-    <div className="flex min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500/30">
-      {/* Sidebar with Glassmorphism */}
-      <aside className="w-72 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800 p-6 flex flex-col justify-between fixed h-full z-20">
+    <div className="flex h-screen bg-[#f8fafc] text-slate-850 overflow-hidden font-sans selection:bg-indigo-500/20">
+      
+      {/* SHARED SIDEBAR */}
+      <aside className="w-72 bg-[#0b0e1e] flex flex-col justify-between transition-all duration-300 relative z-20 border-r border-[#151a3a] shrink-0">
+        
+        {/* Top Branding Section */}
         <div>
-          <div className="flex items-center gap-3 mb-10 px-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-              </svg>
+          <div className="p-6 flex items-center space-x-3 border-b border-[#151a3a]/40">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <Sparkles className="text-white w-5 h-5 animate-pulse" />
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-white">EduAdmin<span className="text-blue-500">.</span></h2>
+            <span className="text-2xl font-black text-white tracking-tight">AuraEdu</span>
           </div>
 
-          <nav className="flex flex-col gap-2 mt-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 mb-2">Menu</p>
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
+          {/* Menu Items with Link routing */}
+          <div className="py-6 px-4 space-y-1.5 overflow-y-auto dark-scrollbar" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.path || (
+                item.path !== '/dashboard' && 
+                item.path !== '/dashboard/teacher' && 
+                item.path !== '/admin/dashboard' && 
+                pathname.startsWith(item.path)
+              );
               return (
-                <Link 
-                  key={link.name}
-                  href={link.href} 
-                  className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200 group ${
+                <Link
+                  key={item.id}
+                  href={item.path}
+                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group relative ${
                     isActive 
-                      ? 'bg-blue-600/10 text-blue-400 font-semibold' 
-                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 font-medium'
+                      ? 'bg-gradient-to-r from-[#5c4fe5] to-[#4c3ce0] text-white font-semibold shadow-lg shadow-indigo-500/30' 
+                      : 'text-slate-400 hover:bg-[#151b3c]/50 hover:text-white'
                   }`}
                 >
-                  <span className={`${isActive ? 'text-blue-500' : 'text-slate-500 group-hover:text-slate-400'} transition-colors`}>
-                    {link.icon}
-                  </span>
-                  {link.name}
+                  <div className="flex items-center space-x-3">
+                    <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                    <span className="text-sm">{item.label}</span>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 opacity-0 transition-all ${isActive ? 'opacity-100 translate-x-0.5' : 'group-hover:opacity-60'}`} />
                 </Link>
               );
             })}
-          </nav>
+          </div>
         </div>
 
-        {/* User Profile & Logout */}
-        <div className="pt-6 border-t border-slate-800">
-          <div className="flex items-center gap-3 px-2 mb-6">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold shadow-lg">
-              {username.charAt(0).toUpperCase()}
+        {/* Sidebar Bottom Profile/Logout Block */}
+        <div className="p-4 border-t border-[#151a3a]/40">
+          <div className="bg-[#121634] border border-[#212854]/40 p-4 rounded-2xl flex items-center justify-between shadow-inner">
+            <div className="flex items-center space-x-3 overflow-hidden">
+              <div className="w-9 h-9 rounded-full bg-slate-950 flex items-center justify-center font-bold text-white text-sm shrink-0 border border-[#2b356d]">
+                {userInitials}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-semibold text-white truncate leading-tight">{username}</span>
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">{getPortalLabel(role)}</span>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-white">{username}</p>
-              <p className="text-xs text-slate-400">Administrator</p>
-            </div>
+            <button 
+              onClick={handleLogout}
+              className="p-2 bg-[#1b2149] hover:bg-[#eb4b4b]/20 hover:text-[#ff6b6b] text-slate-400 rounded-xl transition-colors shrink-0 group"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
           </div>
-
-          <button 
-            onClick={handleLogout} 
-            className="w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors border border-slate-700/50 hover:border-slate-600"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Sign out
-          </button>
         </div>
       </aside>
 
-      {/* Main Content Area (Offset by sidebar width) */}
-      <main className="flex-1 ml-72 min-h-screen">
-        <div className="p-8 md:p-10 max-w-7xl mx-auto">
+      {/* MAIN VIEWPORT */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        {/* SHARED HEADER */}
+        <header className="h-20 px-8 flex items-center justify-between border-b border-slate-200/60 bg-white/70 backdrop-blur-md relative z-10">
+          <div className="flex items-center text-slate-500 text-sm font-medium">
+             <Calendar className="w-4.5 h-4.5 mr-2.5 text-[#5c4fe5]" />
+             <span>{currentDate}</span>
+          </div>
+          
+          <div className="flex items-center space-x-5">
+            {/* Search Pill */}
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="Search classes, events, payments..." 
+                className="bg-white border border-slate-200 text-slate-700 text-sm rounded-full pl-11 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 w-72 shadow-sm transition-all"
+              />
+              <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            </div>
+
+            {/* Message Action Icon */}
+            <button className="bg-white border border-slate-200 p-2.5 rounded-full text-slate-550 hover:text-indigo-650 hover:bg-slate-50 shadow-sm transition-all relative">
+              <MessageSquare className="w-4.5 h-4.5" />
+            </button>
+
+            {/* Notification Action Icon */}
+            <button className="bg-white border border-slate-200 p-2.5 rounded-full text-slate-550 hover:text-indigo-650 hover:bg-slate-50 shadow-sm transition-all relative">
+              <Bell className="w-4.5 h-4.5" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white" />
+            </button>
+
+            {/* Profile Capsule */}
+            <div className="bg-white border border-slate-200/80 shadow-sm p-1.5 pr-4 rounded-full flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#0b0e1e] border border-slate-850 flex items-center justify-center font-black text-white text-xs shadow-inner">
+                {userInitials}
+              </div>
+              <div className="flex flex-col text-left shrink-0">
+                <span className="text-xs font-bold text-slate-800 leading-none">{username}</span>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">User Portal</span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+            </div>
+          </div>
+        </header>
+
+        {/* Dynamic Inner Scrollable Content Canvas */}
+        <div className="flex-1 overflow-y-auto p-8 relative z-10 custom-scrollbar">
           {children}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

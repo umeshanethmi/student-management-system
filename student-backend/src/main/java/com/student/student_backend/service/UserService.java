@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,8 +24,8 @@ public class UserService {
         // Securely hash the plain text password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         
-        // Set default role if not provided
-        if (user.getRole() == null) {
+        // Respect the role if already set, but if it is USER (or null/empty), override it to STUDENT
+        if (user.getRole() == null || user.getRole().isEmpty() || "USER".equalsIgnoreCase(user.getRole())) {
             user.setRole("STUDENT");
         }
         return userRepository.save(user);
@@ -42,5 +43,15 @@ public class UserService {
             }
         }
         return Optional.empty();
+    }
+
+    // 3. Method to retrieve users by role
+    public List<User> getUsersByRole(String role) {
+        return userRepository.findByRole(role.toUpperCase());
+    }
+
+    // 4. Method to delete a user by id
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 }

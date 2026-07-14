@@ -10,13 +10,13 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    // Token එක Encode කරන්න ගන්න රහස් Key එකක් (Secret Key)
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    // Secret key used to encode and sign the JWT token (persistent across restarts to prevent 403 token invalidation)
+    private final Key key = Keys.hmacShaKeyFor("yourSecureSecretKeyMustBeVeryLongToSatisfyHS512RequirementsForSigningTokensProperly1234567890".getBytes());
     
-    // Token එක වලංගු කාලය (මිලි තත්පර වලින් - පැය 24ක්)
+    // Token validity duration (in milliseconds - 24 hours)
     private final long jwtExpirationInMs = 86400000;
 
-    // 1. User කෙනෙක් Login වුණාම Token එකක් හදන මෙතඩ් එක
+    // 1. Method to generate a token when a user logs in
     public String generateToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
@@ -29,7 +29,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 2. Token එකෙන් Username එක කියවන මෙතඩ් එක
+    // 2. Method to read the username from the token
     public String getUsernameFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -40,7 +40,7 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    // 3. Token එක වලංගු එකක්ද (Valid) කියලා චෙක් කරන මෙතඩ් එක
+    // 3. Method to check if the token is valid
     public boolean validateToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);

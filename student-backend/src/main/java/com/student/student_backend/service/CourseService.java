@@ -21,4 +21,14 @@ public class CourseService {
     public Course addCourse(Course course) {
         return courseRepository.save(course);
     }
+
+    // Retrieve a course by ID
+    public java.util.Optional<Course> getCourseById(Long id) {
+        return courseRepository.findById(id);
+    }
+
+    // Delete a course from the database
+    public void deleteCourse(Long id) {
+        courseRepository.deleteById(id);
+    }
 }

@@ -3,30 +3,26 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { User, Mail, Lock, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  // State for form validation and API messages
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Basic email validation regex
   const isValidEmail = (email: string) => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
-  // Handle the form submission
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    // Client-side form validation
     if (!username.trim() || !email.trim() || !password.trim()) {
       setError('Please fill out all fields.');
       return;
@@ -45,7 +41,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/register', {
+      const response = await fetch('http://localhost:8081/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -57,18 +53,14 @@ export default function RegisterPage() {
 
       if (response.ok) {
         setSuccess('Registration successful! Redirecting to login... 🎉');
-        
-        // Automatically redirect the user to '/login' after exactly 2 seconds
         setTimeout(() => {
           router.push('/login');
         }, 2000);
       } else {
-        // Handle error states (e.g., username is taken)
         setError('Registration failed. Username or email might already be taken.');
       }
     } catch (err) {
       console.error('Registration error:', err);
-      // Handle network errors beautifully
       setError('Network error. Please ensure the backend server is running.');
     } finally {
       setIsLoading(false);
@@ -76,32 +68,37 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Soft blue and purple glowing ambient background blobs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div className="min-h-screen bg-[#0b0e1e] flex items-center justify-center px-4 relative overflow-hidden font-sans selection:bg-indigo-500/30">
+      {/* Background Glows */}
+      <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-blue-600/15 blur-[120px] pointer-events-none animate-pulse" style={{ animationDuration: '9s' }} />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-purple-650/15 blur-[120px] pointer-events-none animate-pulse delay-300" style={{ animationDuration: '11s' }} />
 
-      {/* Centered glassmorphic registration card */}
+      {/* Centered Card */}
       <div className="w-full max-w-md relative z-10">
         <form 
           onSubmit={handleRegister} 
-          className="bg-slate-900/50 backdrop-blur-md p-8 md:p-10 rounded-3xl shadow-2xl border border-slate-700"
+          className="bg-[#121634]/40 backdrop-blur-xl p-8 md:p-10 rounded-[2.5rem] shadow-2xl border border-[#212854]/40 flex flex-col transition-all"
         >
+          {/* Brand header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Create Account</h2>
-            <p className="text-sm text-slate-400">Join the platform to continue</p>
+            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+              <Sparkles className="w-7 h-7 text-white" />
+            </div>
+            <h2 className="text-3xl font-black text-white tracking-tight mb-1.5">AuraEdu</h2>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Create your portal account</p>
           </div>
 
-          {/* Smooth Tailwind red-400 alert message */}
+          {/* Error Alert Box */}
           {error && (
-            <div className="mb-6 bg-red-900/40 text-red-400 border border-red-800/50 rounded-xl px-4 py-3 text-sm font-medium animate-pulse">
-              {error}
+            <div className="mb-6 flex items-start gap-3 bg-rose-500/10 border border-rose-550/20 text-rose-450 p-4 rounded-xl text-sm animate-in fade-in slide-in-from-top-2">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <p className="font-semibold text-xs leading-snug">{error}</p>
             </div>
           )}
 
-          {/* Striking green alert box for success */}
+          {/* Success Alert Box */}
           {success && (
-            <div className="mb-6 bg-emerald-900/40 text-emerald-400 border border-emerald-800/50 rounded-xl px-4 py-3 text-sm font-medium animate-pulse">
+            <div className="mb-6 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider animate-pulse">
               {success}
             </div>
           )}
@@ -109,74 +106,96 @@ export default function RegisterPage() {
           <div className="space-y-5">
             {/* Username Field */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5" htmlFor="username">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" htmlFor="username">
                 Username
               </label>
-              <input 
-                id="username"
-                type="text" 
-                placeholder="Choose a username"
-                value={username} 
-                onChange={e => setUsername(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all hover:border-slate-600"
-                disabled={isLoading || !!success}
-                required
-              />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-slate-500 group-focus-within:text-white transition-colors" />
+                </div>
+                <input 
+                  id="username"
+                  type="text" 
+                  placeholder="Choose a username"
+                  value={username} 
+                  onChange={e => setUsername(e.target.value)}
+                  className="w-full bg-[#0b0e1e]/60 border border-[#212854]/60 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-[#5c4fe5] transition-all"
+                  disabled={isLoading || !!success}
+                  required
+                />
+              </div>
             </div>
 
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5" htmlFor="email">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" htmlFor="email">
                 Email
               </label>
-              <input 
-                id="email"
-                type="email" 
-                placeholder="Enter your email"
-                value={email} 
-                onChange={e => setEmail(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all hover:border-slate-600"
-                disabled={isLoading || !!success}
-                required
-              />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-white transition-colors" />
+                </div>
+                <input 
+                  id="email"
+                  type="email" 
+                  placeholder="Enter your email"
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full bg-[#0b0e1e]/60 border border-[#212854]/60 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-[#5c4fe5] transition-all"
+                  disabled={isLoading || !!success}
+                  required
+                />
+              </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5" htmlFor="password">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" htmlFor="password">
                 Password
               </label>
-              <input 
-                id="password"
-                type="password" 
-                placeholder="Create a password"
-                value={password} 
-                onChange={e => setPassword(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all hover:border-slate-600"
-                disabled={isLoading || !!success}
-                required
-              />
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-white transition-colors" />
+                </div>
+                <input 
+                  id="password"
+                  type="password" 
+                  placeholder="Create a password"
+                  value={password} 
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full bg-[#0b0e1e]/60 border border-[#212854]/60 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-[#5c4fe5] transition-all"
+                  disabled={isLoading || !!success}
+                  required
+                />
+              </div>
             </div>
 
             {/* Submit Button */}
             <button 
               type="submit" 
               disabled={isLoading || !!success}
-              className={`w-full mt-2 font-semibold py-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center
+              className={`w-full mt-2 font-bold py-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center uppercase text-xs tracking-wider
                 ${(isLoading || !!success)
-                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed shadow-none' 
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-900/50 hover:shadow-blue-900/70'
+                  ? 'bg-slate-800 text-slate-550 cursor-not-allowed shadow-none' 
+                  : 'bg-gradient-to-r from-blue-650 to-indigo-650 hover:from-blue-550 hover:to-indigo-550 text-white shadow-blue-900/50'
                 }`}
             >
-              {isLoading ? 'Registering...' : 'Register'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                'Register'
+              )}
             </button>
           </div>
 
           {/* Login Link */}
           <div className="mt-8 text-center">
-            <p className="text-sm text-slate-400">
+            <p className="text-xs text-slate-400">
               Already have an account?{' '}
-              <Link href="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+              <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-extrabold uppercase tracking-wider transition-colors hover:underline">
                 Sign In
               </Link>
             </p>
