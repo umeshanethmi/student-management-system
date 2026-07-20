@@ -34,17 +34,55 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/**").permitAll()
-                .requestMatchers("/api/admin", "/api/admin/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/students/profile", "/api/students/profile/**").hasAnyAuthority("STUDENT", "TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/students", "/api/students/**").hasAnyAuthority("ADMIN", "TEACHER")
-                .requestMatchers(HttpMethod.POST, "/api/students", "/api/students/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/students", "/api/students/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/students", "/api/students/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/courses", "/api/courses/**").hasAnyAuthority("ADMIN", "TEACHER", "STUDENT")
-                .requestMatchers(HttpMethod.POST, "/api/courses", "/api/courses/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/courses", "/api/courses/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/courses", "/api/courses/**").hasAuthority("ADMIN")
+                
+                // Admin specific paths
+                .requestMatchers("/api/admin", "/api/admin/**").hasRole("ADMIN")
+                
+                // Student Profile paths
+                .requestMatchers(HttpMethod.GET, "/api/students/profile", "/api/students/profile/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/students", "/api/students/**").hasAnyRole("ADMIN", "TEACHER")
+                .requestMatchers(HttpMethod.POST, "/api/students", "/api/students/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/students", "/api/students/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/students", "/api/students/**").hasRole("ADMIN")
+                
+                // Course paths
+                .requestMatchers(HttpMethod.GET, "/api/courses", "/api/courses/**").hasAnyRole("ADMIN", "TEACHER", "STUDENT")
+                .requestMatchers(HttpMethod.POST, "/api/courses", "/api/courses/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/courses", "/api/courses/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/courses", "/api/courses/**").hasRole("ADMIN")
+                
+                // Attendance Controller Rules
+                .requestMatchers(HttpMethod.GET, "/api/attendance/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/attendance", "/api/attendance/**").hasAnyRole("TEACHER", "ADMIN")
+                
+                // Assignment Controller Rules
+                .requestMatchers(HttpMethod.GET, "/api/assignments", "/api/assignments/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/assignments", "/api/assignments/**").hasAnyRole("TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/assignments/**").hasAnyRole("TEACHER", "ADMIN")
+                
+                // Submission Controller Rules
+                .requestMatchers(HttpMethod.GET, "/api/submissions").hasAnyRole("TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/submissions").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.GET, "/api/submissions/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/submissions/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/submissions/*/grade").hasRole("TEACHER")
+                
+                // ExamResult Controller Rules
+                .requestMatchers(HttpMethod.GET, "/api/exams/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/exams", "/api/exams/**").hasRole("TEACHER")
+
+                // Enrollment Controller Rules
+                .requestMatchers(HttpMethod.GET, "/api/enrollments").hasAnyRole("TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/enrollments/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/enrollments").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.GET, "/api/enrollments/course/**").hasAnyRole("TEACHER", "ADMIN")
+                
+                // Notification Controller Rules
+                .requestMatchers(HttpMethod.GET, "/api/notifications/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/notifications/*/read").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+
                 .anyRequest().authenticated()
             );
         

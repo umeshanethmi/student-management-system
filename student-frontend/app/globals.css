@@ -12,6 +12,88 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  /* ── Semantic Design Tokens ── */
+  --color-sidebar: #04241d;
+  --color-sidebar-border: #0b3b30;
+  --color-sidebar-hover: #0c3e32;
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-primary-light: #ecfdf5;
+  --color-destructive: #ef4444;
+  --color-destructive-hover: #dc2626;
+  --color-destructive-light: #fef2f2;
+  --color-accent: #5c4fe5;
+  --color-accent-hover: #4c3ce0;
+  --color-accent-light: #eef2ff;
+  --color-success: #059669;
+  --color-success-light: #ecfdf5;
+  --color-warning: #d97706;
+  --color-warning-light: #fffbeb;
+  --color-card: #ffffff;
+  --color-muted: #f1f5f9;
+  --color-muted-border: #e2e8f0;
+  --color-text-primary: #1e293b;
+  --color-text-muted: #94a3b8;
+
+  /* ── Existing animations ── */
+  --animate-fade-in-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-pulse-slow: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/* Premium SaaS Design Utilities */
+.bg-grid-pattern {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+.bg-radial-gradient-glow {
+  background: radial-gradient(circle 600px at 50% 200px, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.08), transparent 80%);
+}
+
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -55,4 +137,3 @@ body {
 .dark-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
-

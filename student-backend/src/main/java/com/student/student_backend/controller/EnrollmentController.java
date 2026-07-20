@@ -7,6 +7,7 @@ import com.student.student_backend.repository.EnrollmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,14 +23,22 @@ public class EnrollmentController {
     @Autowired
     private CourseRepository courseRepository;
 
+    // [PURPOSE]: Retrieves all course enrollments.
+    // [ROLE]: ADMIN, TEACHER
+    // [SECURITY]: Protected (JWT, any authenticated user)
     // GET all enrollments
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public List<Enrollment> getAllEnrollments() {
         return enrollmentRepository.findAll();
     }
 
+    // [PURPOSE]: Retrieves enrollment list for a specific student, auto-seeding defaults if empty.
+    // [ROLE]: STUDENT, TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     // GET enrollments by username
     @GetMapping("/student/{username}")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
     public List<Enrollment> getEnrollmentsByStudent(@PathVariable String username) {
         List<Enrollment> enrollments = enrollmentRepository.findByUsername(username);
         
@@ -62,26 +71,45 @@ public class EnrollmentController {
         return enrollments;
     }
 
+    // [PURPOSE]: Enrolls a student in a specific course by ID.
+    // [ROLE]: STUDENT
+    // [SECURITY]: Protected (JWT, STUDENT authority required)
     // POST: Enroll a student in a course
     @PostMapping
-    public ResponseEntity<?> enrollInCourse(@RequestBody Enrollment enrollmentRequest) {
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> enrollInCourse(@RequestBody Enrollment enrollmentRequest,
+                                             java.security.Principal principal) {
+        // Auto-fill username from JWT token if not provided in request body
         String username = enrollmentRequest.getUsername();
+        if (username == null || username.isBlank()) {
+            username = principal.getName();
+            enrollmentRequest.setUsername(username);
+        }
         Long courseId = enrollmentRequest.getCourseId();
 
-        if (username == null || courseId == null) {
-            return ResponseEntity.badRequest().body("Username and Course ID are required.");
+        if (courseId == null) {
+            return ResponseEntity.badRequest().body(java.util.Map.of(
+                "success", false,
+                "message", "Course ID is required."
+            ));
         }
 
         // Check if already enrolled
         Optional<Enrollment> existingOpt = enrollmentRepository.findByUsernameAndCourseId(username, courseId);
         if (existingOpt.isPresent()) {
-            return ResponseEntity.badRequest().body("Student is already enrolled in this course.");
+            return ResponseEntity.badRequest().body(java.util.Map.of(
+                "success", false,
+                "message", "Student is already enrolled in this course."
+            ));
         }
 
         // Retrieve course details
         Optional<Course> courseOpt = courseRepository.findById(courseId);
         if (courseOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(java.util.Map.of(
+                "success", false,
+                "message", "Course not found with ID: " + courseId
+            ));
         }
 
         Course course = courseOpt.get();
@@ -98,8 +126,12 @@ public class EnrollmentController {
         return ResponseEntity.ok(saved);
     }
 
+    // [PURPOSE]: Retrieves all enrollment records for a specific course by its ID.
+    // [ROLE]: TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     // GET enrollments by course ID
     @GetMapping("/course/{courseId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public List<Enrollment> getEnrollmentsByCourse(@PathVariable Long courseId) {
         return enrollmentRepository.findByCourseId(courseId);
     }

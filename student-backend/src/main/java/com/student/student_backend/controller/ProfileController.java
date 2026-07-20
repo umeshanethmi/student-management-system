@@ -14,6 +14,9 @@ public class ProfileController {
     @Autowired
     private StudentService studentService;
 
+    // [PURPOSE]: Updates profile information for a student by their database ID.
+    // [ROLE]: STUDENT, TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @PutMapping("/update")
     public ResponseEntity<Student> updateProfile(@RequestBody Student studentDetails) {
         if (studentDetails.getId() == null) {

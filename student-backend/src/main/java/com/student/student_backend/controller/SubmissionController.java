@@ -4,6 +4,7 @@ import com.student.student_backend.model.Submission;
 import com.student.student_backend.repository.SubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -15,7 +16,11 @@ public class SubmissionController {
     @Autowired
     private SubmissionRepository submissionRepository;
 
+    // [PURPOSE]: Retrieves all submissions, auto-seeding default records if empty.
+    // [ROLE]: TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @GetMapping
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public List<Submission> getAllSubmissions() {
         List<Submission> list = submissionRepository.findAll();
         
@@ -30,22 +35,38 @@ public class SubmissionController {
         return list;
     }
 
+    // [PURPOSE]: Submits a new assignment submission from a student.
+    // [ROLE]: STUDENT
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @PostMapping
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
     public Submission createSubmission(@RequestBody Submission submission) {
         return submissionRepository.save(submission);
     }
 
+    // [PURPOSE]: Retrieves all submissions made by a specific student username.
+    // [ROLE]: STUDENT, TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @GetMapping("/student/{studentUsername}")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
     public List<Submission> getSubmissionsByStudent(@PathVariable String studentUsername) {
         return submissionRepository.findByStudentUsername(studentUsername);
     }
 
+    // [PURPOSE]: Retrieves a single submission by its ID.
+    // [ROLE]: STUDENT, TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
     public Submission getSubmissionById(@PathVariable Long id) {
         return submissionRepository.findById(id).orElse(null);
     }
 
+    // [PURPOSE]: Grades a student's submission (updates marks and feedback).
+    // [ROLE]: TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @PutMapping("/{id}/grade")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public Submission gradeSubmission(@PathVariable Long id, @RequestParam int marks, @RequestParam String feedback) {
         Submission sub = submissionRepository.findById(id).orElse(null);
         if (sub != null) {

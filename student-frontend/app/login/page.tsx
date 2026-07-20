@@ -33,18 +33,16 @@ export default function LoginPage() {
       if (response.ok) {
         const resJson = await response.json();
         const data = resJson.data;
-        
-        // Store credentials securely in localStorage
+
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username);
         localStorage.setItem('role', data.role);
-        
-        // Redirect based on selected role returned from backend
+
         let redirectRole = data.role?.toUpperCase();
         if (redirectRole === 'LECTURER') {
           redirectRole = 'TEACHER';
         }
-        
+
         if (redirectRole === 'STUDENT') {
           router.push('/dashboard');
         } else if (redirectRole === 'TEACHER') {
@@ -71,58 +69,49 @@ export default function LoginPage() {
     }
   };
 
-  const theme = {
-    activeClass: 'bg-[#5c4fe5] text-white shadow-lg shadow-indigo-500/20',
-    gradient: 'from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-indigo-900/40',
-    accent: 'text-indigo-400'
-  };
-
   return (
-    <div className="min-h-screen bg-[#0b0e1e] flex items-center justify-center p-4 relative overflow-hidden font-sans selection:bg-indigo-500/30">
-      {/* Background Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-indigo-650/15 blur-[120px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-blue-600/15 blur-[120px] pointer-events-none animate-pulse delay-500" style={{ animationDuration: '10s' }} />
+    <div className="min-h-screen bg-card flex items-center justify-center p-4 relative overflow-hidden font-sans selection:bg-primary/20 selection:text-primary-hover">
 
       {/* Login Card */}
-      <div className="w-full max-w-md relative z-10">
-        <form 
-          onSubmit={handleLogin} 
-          className="bg-[#121634]/40 backdrop-blur-xl p-8 md:p-10 rounded-[2.5rem] shadow-2xl border border-[#212854]/40 flex flex-col transition-all"
+      <div className="w-full max-w-lg relative z-10 animate-fade-in-up">
+        <form
+          onSubmit={handleLogin}
+          className="bg-muted p-10 md:p-12 rounded-[2.5rem] shadow-2xl shadow-primary/20 border border-muted-border flex flex-col transition-all"
         >
           {/* Logo / Header */}
           <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+            <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-hover rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
-            <h2 className="text-3xl font-black text-white tracking-tight mb-1.5">AuraEdu</h2>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Sign in to your portal</p>
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-1.5">AuraEdu</h2>
+            <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider">Sign in to your portal</p>
           </div>
 
           {/* Error Alert */}
           {error && (
-            <div className="mb-6 flex items-start gap-3 bg-rose-500/10 border border-rose-550/20 text-rose-450 p-4 rounded-xl text-sm animate-in fade-in slide-in-from-top-2">
+            <div className="mb-6 flex items-start gap-3 bg-destructive/10 border border-destructive/20 text-destructive p-4 rounded-xl animate-in fade-in slide-in-from-top-2">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-              <p className="font-semibold text-xs leading-snug">{error}</p>
+              <p className="font-medium text-sm leading-snug">{error}</p>
             </div>
           )}
 
           {/* Input Fields */}
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" htmlFor="username">
+              <label className="block text-sm font-semibold text-slate-600 uppercase tracking-wider mb-1.5" htmlFor="username">
                 Username
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-slate-500 group-focus-within:text-white transition-colors" />
+                  <User className="h-5 w-5 text-slate-500 group-focus-within:text-primary transition-colors" />
                 </div>
-                <input 
+                <input
                   id="username"
-                  type="text" 
+                  type="text"
                   placeholder="Enter your username"
-                  value={username} 
+                  value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-[#0b0e1e]/60 border border-[#212854]/60 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-[#5c4fe5] transition-all"
+                  className="w-full bg-card border border-muted-border rounded-2xl pl-11 pr-4 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-medium"
                   disabled={isLoading}
                   required
                 />
@@ -130,20 +119,20 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" htmlFor="password">
+              <label className="block text-sm font-semibold text-slate-600 uppercase tracking-wider mb-1.5" htmlFor="password">
                 Password
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-white transition-colors" />
+                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-primary transition-colors" />
                 </div>
-                <input 
+                <input
                   id="password"
-                  type="password" 
+                  type="password"
                   placeholder="••••••••"
-                  value={password} 
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#0b0e1e]/60 border border-[#212854]/60 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-[#5c4fe5] transition-all"
+                  className="w-full bg-card border border-muted-border rounded-2xl pl-11 pr-4 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-medium"
                   disabled={isLoading}
                   required
                 />
@@ -151,14 +140,13 @@ export default function LoginPage() {
             </div>
 
             {/* Login Button */}
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isLoading}
-              className={`w-full mt-4 flex items-center justify-center py-3.5 rounded-xl font-bold text-white transition-all uppercase text-xs tracking-wider shadow-lg ${
-                isLoading
-                  ? 'bg-slate-800 text-slate-400 cursor-not-allowed shadow-none'
-                  : `bg-gradient-to-r ${theme.gradient}`
-              }`}
+              className={`w-full mt-4 flex items-center justify-center py-4 rounded-2xl font-semibold text-white transition-all uppercase text-sm tracking-wider shadow-lg ${isLoading
+                ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                : 'bg-primary hover:bg-primary-hover shadow-primary/20 hover:scale-[1.01]'
+                }`}
             >
               {isLoading ? (
                 <>
@@ -173,9 +161,9 @@ export default function LoginPage() {
 
           {/* Registration Link */}
           <div className="mt-8 text-center">
-            <p className="text-xs text-slate-400">
-              Don&apos;t have an account?{' '}
-              <Link href="/register" className={`font-extrabold uppercase tracking-wider hover:underline transition-colors ${theme.accent}`}>
+            <p className="text-sm text-slate-500 font-medium">
+              Don't have an account?{' '}
+              <Link href="/register" className="font-semibold uppercase tracking-wider text-primary hover:text-primary-hover hover:underline transition-colors">
                 Register here
               </Link>
             </p>

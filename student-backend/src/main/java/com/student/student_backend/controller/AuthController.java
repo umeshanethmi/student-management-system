@@ -25,6 +25,9 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    // [PURPOSE]: Performs user registration, defaulting the role to STUDENT.
+    // [ROLE]: Public
+    // [SECURITY]: Public (Permit All)
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponseDTO>> register(@RequestBody User user) {
         // Force role to STUDENT for public registrations
@@ -46,6 +49,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // [PURPOSE]: Authenticates a user's credentials and returns a JWT token if successful.
+    // [ROLE]: Public
+    // [SECURITY]: Public (Permit All)
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         String username = loginRequest.get("username");
@@ -81,6 +87,9 @@ public class AuthController {
         }
     }
 
+    // [PURPOSE]: Retrieves current session authentication details for debugging purposes.
+    // [ROLE]: Public
+    // [SECURITY]: Public (Permit All via /api/auth/** match)
     @GetMapping("/debug")
     public ResponseEntity<?> debugAuth() {
         org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();

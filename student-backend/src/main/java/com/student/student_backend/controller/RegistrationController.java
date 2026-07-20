@@ -15,6 +15,9 @@ public class RegistrationController {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    // [PURPOSE]: Submits student course registration along with a bank deposit slip (multipart form upload).
+    // [ROLE]: STUDENT
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @PostMapping(value = "/submit", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> submitRegistration(
             @RequestParam("username") String username,

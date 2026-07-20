@@ -17,6 +17,9 @@ public class AdminUserController {
     @Autowired
     private UserService userService;
 
+    // [PURPOSE]: Creates a new user (STUDENT or TEACHER) under admin command.
+    // [ROLE]: ADMIN
+    // [SECURITY]: Protected (JWT, ADMIN authority required)
     @PostMapping("/users")
     public ResponseEntity<ApiResponse<?>> createUserByAdmin(@RequestBody User user) {
         String role = user.getRole();
@@ -43,11 +46,17 @@ public class AdminUserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // [PURPOSE]: Retrieves a list of all users holding a specific role.
+    // [ROLE]: ADMIN
+    // [SECURITY]: Protected (JWT, ADMIN authority required)
     @GetMapping("/users/role/{role}")
     public java.util.List<User> getUsersByRole(@PathVariable String role) {
         return userService.getUsersByRole(role);
     }
 
+    // [PURPOSE]: Deletes a user from the system by their database ID.
+    // [ROLE]: ADMIN
+    // [SECURITY]: Protected (JWT, ADMIN authority required)
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);

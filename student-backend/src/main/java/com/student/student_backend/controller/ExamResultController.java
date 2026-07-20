@@ -2,6 +2,7 @@ package com.student.student_backend.controller;
 
 import com.student.student_backend.model.ExamResult;
 import com.student.student_backend.repository.ExamResultRepository;
+import com.student.student_backend.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,12 @@ public class ExamResultController {
     @Autowired
     private ExamResultRepository examResultRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    // [PURPOSE]: Retrieves exam results for a specific student, auto-seeding default results if empty.
+    // [ROLE]: STUDENT, TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @GetMapping("/student/{username}")
     public List<ExamResult> getExamsByStudent(@PathVariable String username) {
         List<ExamResult> records = examResultRepository.findByUsername(username);
@@ -32,6 +39,9 @@ public class ExamResultController {
         return records;
     }
 
+    // [PURPOSE]: Creates or updates an exam result record.
+    // [ROLE]: TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @PostMapping
     public ExamResult saveExamResult(@RequestBody ExamResult examResult) {
         return examResultRepository.save(examResult);

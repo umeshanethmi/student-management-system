@@ -26,7 +26,7 @@ public class UserPrincipal implements UserDetails {
         if ("LECTURER".equals(role)) {
             role = "TEACHER";
         }
-        String authorityName = role.startsWith("ROLE_") ? role.substring(5) : role;
+        String authorityName = role.startsWith("ROLE_") ? role : "ROLE_" + role;
         return Collections.singletonList(new SimpleGrantedAuthority(authorityName));
     }
 

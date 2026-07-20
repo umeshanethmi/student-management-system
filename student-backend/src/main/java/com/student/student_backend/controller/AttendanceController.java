@@ -4,6 +4,7 @@ import com.student.student_backend.model.Attendance;
 import com.student.student_backend.repository.AttendanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -15,7 +16,11 @@ public class AttendanceController {
     @Autowired
     private AttendanceRepository attendanceRepository;
 
+    // [PURPOSE]: Retrieves attendance history for a student by username, auto-seeding defaults if empty.
+    // [ROLE]: STUDENT, TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @GetMapping("/student/{username}")
+    @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
     public List<Attendance> getAttendanceByStudent(@PathVariable String username) {
         List<Attendance> records = attendanceRepository.findByUsername(username);
 
@@ -33,7 +38,11 @@ public class AttendanceController {
         return records;
     }
 
+    // [PURPOSE]: Saves/updates a list of attendance records (batch processing).
+    // [ROLE]: TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @PostMapping
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public List<Attendance> saveAttendance(@RequestBody List<Attendance> records) {
         return attendanceRepository.saveAll(records);
     }

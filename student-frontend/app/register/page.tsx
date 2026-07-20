@@ -68,37 +68,34 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0e1e] flex items-center justify-center px-4 relative overflow-hidden font-sans selection:bg-indigo-500/30">
-      {/* Background Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-blue-600/15 blur-[120px] pointer-events-none animate-pulse" style={{ animationDuration: '9s' }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-purple-650/15 blur-[120px] pointer-events-none animate-pulse delay-300" style={{ animationDuration: '11s' }} />
-
+    <div className="min-h-screen bg-card flex items-center justify-center px-4 relative overflow-hidden font-sans selection:bg-primary/20 selection:text-primary-hover">
+      
       {/* Centered Card */}
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-md relative z-10 animate-fade-in-up">
         <form 
           onSubmit={handleRegister} 
-          className="bg-[#121634]/40 backdrop-blur-xl p-8 md:p-10 rounded-[2.5rem] shadow-2xl border border-[#212854]/40 flex flex-col transition-all"
+          className="bg-muted p-8 md:p-10 rounded-[2.5rem] shadow-2xl shadow-primary/20 border border-muted-border flex flex-col transition-all"
         >
           {/* Brand header */}
           <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+            <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary-hover rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20 transition-transform duration-300 hover:scale-105">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
-            <h2 className="text-3xl font-black text-white tracking-tight mb-1.5">AuraEdu</h2>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Create your portal account</p>
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight mb-1.5">AuraEdu</h2>
+            <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider">Create your portal account</p>
           </div>
 
           {/* Error Alert Box */}
           {error && (
-            <div className="mb-6 flex items-start gap-3 bg-rose-500/10 border border-rose-550/20 text-rose-450 p-4 rounded-xl text-sm animate-in fade-in slide-in-from-top-2">
+            <div className="mb-6 flex items-start gap-3 bg-destructive/10 border border-destructive/20 text-destructive p-4 rounded-xl animate-in fade-in slide-in-from-top-2">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-              <p className="font-semibold text-xs leading-snug">{error}</p>
+              <p className="font-medium text-sm leading-snug">{error}</p>
             </div>
           )}
 
           {/* Success Alert Box */}
           {success && (
-            <div className="mb-6 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider animate-pulse">
+            <div className="mb-6 bg-primary-light border border-primary/20 text-primary rounded-xl px-4 py-3.5 text-sm font-semibold uppercase tracking-wider">
               {success}
             </div>
           )}
@@ -106,12 +103,12 @@ export default function RegisterPage() {
           <div className="space-y-5">
             {/* Username Field */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" htmlFor="username">
+              <label className="block text-sm font-semibold text-slate-600 uppercase tracking-wider mb-1.5" htmlFor="username">
                 Username
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-slate-500 group-focus-within:text-white transition-colors" />
+                  <User className="h-5 w-5 text-slate-500 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input 
                   id="username"
@@ -119,7 +116,7 @@ export default function RegisterPage() {
                   placeholder="Choose a username"
                   value={username} 
                   onChange={e => setUsername(e.target.value)}
-                  className="w-full bg-[#0b0e1e]/60 border border-[#212854]/60 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-[#5c4fe5] transition-all"
+                  className="w-full bg-card border border-muted-border rounded-xl pl-11 pr-4 py-3.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-medium"
                   disabled={isLoading || !!success}
                   required
                 />
@@ -128,12 +125,12 @@ export default function RegisterPage() {
 
             {/* Email Field */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" htmlFor="email">
+              <label className="block text-sm font-semibold text-slate-600 uppercase tracking-wider mb-1.5" htmlFor="email">
                 Email
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-white transition-colors" />
+                  <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input 
                   id="email"
@@ -141,7 +138,7 @@ export default function RegisterPage() {
                   placeholder="Enter your email"
                   value={email} 
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full bg-[#0b0e1e]/60 border border-[#212854]/60 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-[#5c4fe5] transition-all"
+                  className="w-full bg-card border border-muted-border rounded-xl pl-11 pr-4 py-3.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-medium"
                   disabled={isLoading || !!success}
                   required
                 />
@@ -150,12 +147,12 @@ export default function RegisterPage() {
 
             {/* Password Field */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" htmlFor="password">
+              <label className="block text-sm font-semibold text-slate-600 uppercase tracking-wider mb-1.5" htmlFor="password">
                 Password
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-white transition-colors" />
+                  <Lock className="h-5 w-5 text-slate-500 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input 
                   id="password"
@@ -163,7 +160,7 @@ export default function RegisterPage() {
                   placeholder="Create a password"
                   value={password} 
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full bg-[#0b0e1e]/60 border border-[#212854]/60 rounded-xl pl-11 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-[#5c4fe5] transition-all"
+                  className="w-full bg-card border border-muted-border rounded-xl pl-11 pr-4 py-3.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-base font-medium"
                   disabled={isLoading || !!success}
                   required
                 />
@@ -174,10 +171,10 @@ export default function RegisterPage() {
             <button 
               type="submit" 
               disabled={isLoading || !!success}
-              className={`w-full mt-2 font-bold py-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center uppercase text-xs tracking-wider
+              className={`w-full mt-2 font-semibold py-3.5 rounded-xl transition-all shadow-lg flex items-center justify-center uppercase text-sm tracking-wider
                 ${(isLoading || !!success)
-                  ? 'bg-slate-800 text-slate-550 cursor-not-allowed shadow-none' 
-                  : 'bg-gradient-to-r from-blue-650 to-indigo-650 hover:from-blue-550 hover:to-indigo-550 text-white shadow-blue-900/50'
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none' 
+                  : 'bg-primary hover:bg-primary-hover text-white shadow-primary/20 hover:scale-[1.01]'
                 }`}
             >
               {isLoading ? (
@@ -193,9 +190,9 @@ export default function RegisterPage() {
 
           {/* Login Link */}
           <div className="mt-8 text-center">
-            <p className="text-xs text-slate-400">
+            <p className="text-sm text-slate-500 font-medium">
               Already have an account?{' '}
-              <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-extrabold uppercase tracking-wider transition-colors hover:underline">
+              <Link href="/login" className="text-primary hover:text-primary-hover font-semibold uppercase tracking-wider transition-colors hover:underline">
                 Sign In
               </Link>
             </p>

@@ -15,11 +15,17 @@ public class AnnouncementController {
     @Autowired
     private AnnouncementRepository announcementRepository;
 
+    // [PURPOSE]: Retrieves all announcements from the database.
+    // [ROLE]: STUDENT, TEACHER, ADMIN
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @GetMapping
     public List<Announcement> getAllAnnouncements() {
         return announcementRepository.findAll();
     }
 
+    // [PURPOSE]: Creates and saves a new announcement.
+    // [ROLE]: ADMIN, TEACHER
+    // [SECURITY]: Protected (JWT, any authenticated user)
     @PostMapping
     public Announcement createAnnouncement(@RequestBody Announcement announcement) {
         if (announcement.getTimestamp() == null) {

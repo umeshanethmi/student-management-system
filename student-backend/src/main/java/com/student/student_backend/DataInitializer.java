@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import jakarta.persistence.EntityManager;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -19,9 +21,16 @@ public class DataInitializer implements CommandLineRunner {
     private com.student.student_backend.repository.CourseRepository courseRepository;
 
     @Autowired
+    private com.student.student_backend.repository.EnrollmentRepository enrollmentRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         try {
             userRepository.deleteDuplicateUsers();
@@ -57,9 +66,33 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("---- Teacher user AURA26L01 already exists in database ----");
         }
 
-        // Seed default catalog courses
-        if (courseRepository.count() < 4) {
-            courseRepository.deleteAll(); // Clean any duplicate/dirty states
+        // Seed default student user for testing
+        Optional<User> studentOpt = userRepository.findByUsername("nethmi");
+        if (studentOpt.isEmpty()) {
+            User student = new User();
+            student.setUsername("nethmi");
+            student.setEmail("nethmi@auraedu.com");
+            student.setPassword(passwordEncoder.encode("pass1234"));
+            student.setRole("STUDENT");
+            userRepository.save(student);
+            System.out.println("---- Student user nethmi initialized in database ----");
+        } else {
+            System.out.println("---- Student user nethmi already exists in database ----");
+        }
+
+        // Seed default catalog courses — always ensure clean canonical set with IDs 1-4
+        {
+            // Clear enrollments and courses, then re-seed with predictable IDs
+            enrollmentRepository.deleteAll();
+            courseRepository.deleteAll();
+            courseRepository.flush();
+            
+            // Reset the PostgreSQL auto-increment sequence so IDs start from 1
+            try {
+                entityManager.createNativeQuery("ALTER SEQUENCE courses_id_seq RESTART WITH 1").executeUpdate();
+            } catch (Exception e) {
+                System.err.println("Note: Could not reset course sequence: " + e.getMessage());
+            }
             
             com.student.student_backend.model.Course c1 = new com.student.student_backend.model.Course();
             c1.setCourseName("Java Programming");
@@ -93,7 +126,7 @@ public class DataInitializer implements CommandLineRunner {
             c4.setFee("LKR 65,000");
             courseRepository.save(c4);
             
-            System.out.println("---- Catalog courses seeded ----");
+            System.out.println("---- Catalog courses seeded with IDs 1-4 ----");
         }
     }
 }
