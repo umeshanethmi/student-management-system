@@ -204,9 +204,6 @@ export default function StudentDashboardHome() {
                   ))}
                 </div>
               )}
-              <button className="w-full mt-6 py-3 rounded-xl bg-card border border-muted-border text-slate-700 hover:bg-muted hover:text-slate-900 transition-all text-sm font-semibold uppercase tracking-wider shadow-sm">
-                View All Notifications
-              </button>
             </div>
           </div>
         </div>

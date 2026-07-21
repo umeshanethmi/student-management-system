@@ -8,7 +8,6 @@ import {
   BookOpen,
   CheckCircle,
   GraduationCap,
-  Bell,
   Settings,
   Sparkles,
 } from 'lucide-react';
@@ -63,7 +62,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (roleUpper === 'STUDENT') {
       items.push(
         { id: 'Assignments', path: '/dashboard/assignments', icon: BookOpen, label: 'Assignments' },
-        { id: 'Notifications', path: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
         { id: 'Settings', path: '/dashboard/settings', icon: Settings, label: 'Settings' },
       );
     } else if (roleUpper === 'TEACHER') {

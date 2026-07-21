@@ -27,9 +27,6 @@ public class StudentController {
     @Autowired
     private com.student.student_backend.repository.AttendanceRepository attendanceRepository;
 
-    @Autowired
-    private com.student.student_backend.repository.AnnouncementRepository announcementRepository;
-
     // [PURPOSE]: Creates a new student profile.
     // [ROLE]: ADMIN
     // [SECURITY]: Protected (JWT, ADMIN authority required)
@@ -160,7 +157,7 @@ public class StudentController {
         return ResponseEntity.ok(summary);
     }
 
-    // [PURPOSE]: Retrieves a chronological feed of notifications and announcements for a student.
+    // [PURPOSE]: Retrieves a chronological feed of updates for the student dashboard.
     // [ROLE]: STUDENT, TEACHER, ADMIN
     // [SECURITY]: Protected (JWT, any authenticated role matches /api/students/profile/**)
     // API to get profile updates/notifications (GET)
@@ -168,49 +165,33 @@ public class StudentController {
     public ResponseEntity<?> getProfileUpdates(@PathVariable String username) {
         java.util.List<java.util.Map<String, String>> updates = new java.util.ArrayList<>();
         
-        try {
-            List<com.student.student_backend.model.Announcement> list = announcementRepository.findAll();
-            for (com.student.student_backend.model.Announcement a : list) {
-                java.util.Map<String, String> u = new java.util.HashMap<>();
-                u.put("title", a.getTitle());
-                u.put("desc", a.getDescription());
-                u.put("time", a.getTimestamp() != null ? a.getTimestamp() : "Just now");
-                u.put("type", "info");
-                updates.add(0, u); // Prepend so new announcements show up first
-            }
-        } catch (Exception e) {
-            // Ignore database error, proceed with seed list
-        }
-
-        if (updates.isEmpty()) {
-            java.util.Map<String, String> u1 = new java.util.HashMap<>();
-            u1.put("title", "Assignment Marks Released");
-            u1.put("desc", "Physics Lab Report 3 graded: A-");
-            u1.put("time", "2 hours ago");
-            u1.put("type", "success");
-            updates.add(u1);
-            
-            java.util.Map<String, String> u2 = new java.util.HashMap<>();
-            u2.put("title", "Upcoming Exam Notice");
-            u2.put("desc", "Midterm for Data Structures on Oct 15th");
-            u2.put("time", "Yesterday");
-            u2.put("type", "warning");
-            updates.add(u2);
-            
-            java.util.Map<String, String> u3 = new java.util.HashMap<>();
-            u3.put("title", "Library Book Due");
-            u3.put("desc", "'Introduction to Algorithms' due tomorrow");
-            u3.put("time", "2 days ago");
-            u3.put("type", "danger");
-            updates.add(u3);
-            
-            java.util.Map<String, String> u4 = new java.util.HashMap<>();
-            u4.put("title", "System Maintenance");
-            u4.put("desc", "Portal down from 2AM to 4AM this Sunday");
-            u4.put("time", "3 days ago");
-            u4.put("type", "info");
-            updates.add(u4);
-        }
+        java.util.Map<String, String> u1 = new java.util.HashMap<>();
+        u1.put("title", "Assignment Marks Released");
+        u1.put("desc", "Physics Lab Report 3 graded: A-");
+        u1.put("time", "2 hours ago");
+        u1.put("type", "success");
+        updates.add(u1);
+        
+        java.util.Map<String, String> u2 = new java.util.HashMap<>();
+        u2.put("title", "Upcoming Exam Notice");
+        u2.put("desc", "Midterm for Data Structures on Oct 15th");
+        u2.put("time", "Yesterday");
+        u2.put("type", "warning");
+        updates.add(u2);
+        
+        java.util.Map<String, String> u3 = new java.util.HashMap<>();
+        u3.put("title", "Library Book Due");
+        u3.put("desc", "'Introduction to Algorithms' due tomorrow");
+        u3.put("time", "2 days ago");
+        u3.put("type", "danger");
+        updates.add(u3);
+        
+        java.util.Map<String, String> u4 = new java.util.HashMap<>();
+        u4.put("title", "System Maintenance");
+        u4.put("desc", "Portal down from 2AM to 4AM this Sunday");
+        u4.put("time", "3 days ago");
+        u4.put("type", "info");
+        updates.add(u4);
         
         return ResponseEntity.ok(updates);
     }

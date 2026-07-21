@@ -64,7 +64,7 @@ public class SecurityConfig {
                 
                 // Submission Controller Rules
                 .requestMatchers(HttpMethod.GET, "/api/submissions").hasAnyRole("TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/submissions").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.POST, "/api/submissions").hasAnyRole("STUDENT", "TEACHER")
                 .requestMatchers(HttpMethod.GET, "/api/submissions/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/submissions/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/submissions/*/grade").hasRole("TEACHER")
@@ -79,10 +79,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/enrollments").hasRole("STUDENT")
                 .requestMatchers(HttpMethod.GET, "/api/enrollments/course/**").hasAnyRole("TEACHER", "ADMIN")
                 
-                // Notification Controller Rules
-                .requestMatchers(HttpMethod.GET, "/api/notifications/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/notifications/*/read").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-
                 .anyRequest().authenticated()
             );
         

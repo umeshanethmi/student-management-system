@@ -87,6 +87,16 @@ export default function AdminDashboard() {
   // Add Teacher modal state
   const [isTeacherModalOpen, setIsTeacherModalOpen] = useState(false);
 
+  // Edit Teacher modal state
+  const [isEditTeacherModalOpen, setIsEditTeacherModalOpen] = useState(false);
+  const [editingTeacher, setEditingTeacher] = useState<any | null>(null);
+  const [editTeacherUsername, setEditTeacherUsername] = useState('');
+  const [editTeacherEmail, setEditTeacherEmail] = useState('');
+  const [editTeacherPassword, setEditTeacherPassword] = useState('');
+  const [editTeacherLoading, setEditTeacherLoading] = useState(false);
+  const [editTeacherSuccess, setEditTeacherSuccess] = useState('');
+  const [editTeacherError, setEditTeacherError] = useState('');
+
   // ── Strict pagination for Admin tables ────────────────────────
   const [studPage, setStudPage] = useState(1);
   const [teachPage, setTeachPage] = useState(1);
@@ -246,6 +256,41 @@ export default function AdminDashboard() {
       setDeleteTeacherError(err.message || 'Failed to delete teacher.');
     } finally {
       setIsDeletingTeacher(false);
+    }
+  };
+
+  const handleEditTeacher = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTeacher) return;
+    setEditTeacherSuccess('');
+    setEditTeacherError('');
+    setEditTeacherLoading(true);
+
+    try {
+      const body: any = {
+        username: editTeacherUsername.trim(),
+        email: editTeacherEmail.trim(),
+        role: 'TEACHER',
+      };
+      if (editTeacherPassword.trim()) {
+        body.password = editTeacherPassword.trim();
+      }
+      await apiFetch(`/api/admin/users/${editingTeacher.id}`, {
+        method: 'PUT',
+        body,
+      });
+      setEditTeacherSuccess('Teacher account updated successfully! 🎉');
+      fetchTeachers();
+      setTimeout(() => {
+        setIsEditTeacherModalOpen(false);
+        setEditingTeacher(null);
+        setEditTeacherSuccess('');
+      }, 1500);
+    } catch (err: any) {
+      console.error('Error updating teacher:', err);
+      setEditTeacherError(err.message || 'Failed to update teacher account.');
+    } finally {
+      setEditTeacherLoading(false);
     }
   };
 
@@ -637,7 +682,7 @@ export default function AdminDashboard() {
                     <h2 className="text-3xl font-black text-[#10b981] leading-tight">
                       Support Hub
                     </h2>
-                    <p className="text-slate-455 text-sm mt-1 max-w-2xl">
+                    <p className="text-white text-sm mt-1 max-w-2xl">
                       Welcome Back Admin, {adminName}! Management console for AuraEdu facilities and resource maintenance logs.
                     </p>
                   </div>
@@ -1047,17 +1092,34 @@ export default function AdminDashboard() {
                             <td className="py-3.5 px-6 text-slate-800 font-bold">{teacher.username}</td>
                             <td className="py-3.5 px-6 text-slate-500 font-medium">{teacher.email}</td>
                             <td className="py-3.5 px-6 text-right">
-                              <button 
-                                onClick={() => {
-                                  setTeacherToDelete(teacher);
-                                  setDeleteTeacherError('');
-                                  setIsDeleteTeacherOpen(true);
-                                }}
-                                className="text-red-500 hover:text-red-700 hover:bg-rose-50 border border-transparent p-2 rounded-xl transition-all inline-flex items-center justify-center ml-auto"
-                                title="Delete Faculty Account"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button 
+                                  onClick={() => {
+                                    setEditingTeacher(teacher);
+                                    setEditTeacherUsername(teacher.username || '');
+                                    setEditTeacherEmail(teacher.email || '');
+                                    setEditTeacherPassword('');
+                                    setEditTeacherSuccess('');
+                                    setEditTeacherError('');
+                                    setIsEditTeacherModalOpen(true);
+                                  }}
+                                  className="p-2 rounded-xl text-indigo-600 bg-indigo-50/70 border border-indigo-100/50 hover:bg-indigo-100 hover:text-indigo-700 transition-all duration-200 cursor-pointer inline-flex items-center justify-center shadow-sm hover:shadow"
+                                  title="Edit Teacher"
+                                >
+                                  <Edit2 className="h-4 w-4" />
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    setTeacherToDelete(teacher);
+                                    setDeleteTeacherError('');
+                                    setIsDeleteTeacherOpen(true);
+                                  }}
+                                  className="text-red-500 hover:text-red-700 hover:bg-rose-50 border border-transparent p-2 rounded-xl transition-all inline-flex items-center justify-center"
+                                  title="Delete Faculty Account"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -1668,6 +1730,114 @@ export default function AdminDashboard() {
                   loading={teacherLoading}
                 >
                   {teacherLoading ? 'Creating...' : 'Register Teacher'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT TEACHER MODAL */}
+      {isEditTeacherModalOpen && editingTeacher && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+            <div className="p-6 border-b border-slate-150 flex justify-between items-center bg-slate-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center shrink-0 text-[#5c4fe5]">
+                  <Edit2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-800">Edit Teacher</h3>
+                  <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Update faculty credentials</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setIsEditTeacherModalOpen(false);
+                  setEditingTeacher(null);
+                  setEditTeacherSuccess('');
+                }}
+                className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {(editTeacherSuccess || editTeacherError) && (
+              <div className={`mx-6 mt-5 text-xs font-bold uppercase tracking-wider p-3 rounded-xl border animate-in fade-in ${
+                editTeacherSuccess 
+                  ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                  : 'bg-rose-50 text-rose-600 border-rose-100'
+              }`}>
+                {editTeacherSuccess || editTeacherError}
+              </div>
+            )}
+
+            <form onSubmit={handleEditTeacher} className="p-6 space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Username</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="teacher_username"
+                    value={editTeacherUsername}
+                    onChange={(e) => setEditTeacherUsername(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"
+                    required
+                  />
+                  <UserCheck className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Email Address</label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    placeholder="teacher@auraedu.com"
+                    value={editTeacherEmail}
+                    onChange={(e) => setEditTeacherEmail(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"
+                    required
+                  />
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">New Password (leave blank to keep current)</label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    placeholder="Enter new password if needed"
+                    value={editTeacherPassword}
+                    onChange={(e) => setEditTeacherPassword(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"
+                  />
+                  <Key className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              <div className="pt-3 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setIsEditTeacherModalOpen(false);
+                    setEditingTeacher(null);
+                    setEditTeacherSuccess('');
+                  }}
+                  className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
+                >
+                  Cancel
+                </button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="flex-1"
+                  loading={editTeacherLoading}
+                >
+                  {editTeacherLoading ? 'Updating...' : 'Save Changes'}
                 </Button>
               </div>
             </form>

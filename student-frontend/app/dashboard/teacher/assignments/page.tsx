@@ -127,10 +127,17 @@ export default function AssignmentsPortalPage() {
       const savedAssignment = await apiFetch<Assignment>('/api/assignments', { method: 'POST', body: newAssignment });
       setAssignments(prev => [...prev, savedAssignment]);
       if (selectedAssignId === 0) setSelectedAssignId(savedAssignment.id);
-      const randomStudent = filteredStudents.length > 0 ? filteredStudents[0] : { name: "Nethmi", username: "nethmi" };
-      const mockSubmission = { assignmentId: savedAssignment.id, studentName: randomStudent.name, studentUsername: randomStudent.username, fileUrl: `https://auraedu-storage.s3.amazonaws.com/submissions/${randomStudent.username}_assignment_${savedAssignment.id}.pdf`, marks: 0, feedback: "", submittedAt: formattedDate };
-      const savedSubmission = await apiFetch<Submission>('/api/submissions', { method: 'POST', body: mockSubmission });
-      setSubmissions(prev => [...prev, savedSubmission]);
+      
+      // Try to create a mock submission (optional, silently ignore if it fails)
+      try {
+        const randomStudent = filteredStudents.length > 0 ? filteredStudents[0] : { name: "Nethmi", username: "nethmi" };
+        const mockSubmission = { assignmentId: savedAssignment.id, studentName: randomStudent.name, studentUsername: randomStudent.username, fileUrl: `https://auraedu-storage.s3.amazonaws.com/submissions/${randomStudent.username}_assignment_${savedAssignment.id}.pdf`, marks: 0, feedback: "", submittedAt: formattedDate };
+        const savedSubmission = await apiFetch<Submission>('/api/submissions', { method: 'POST', body: mockSubmission });
+        setSubmissions(prev => [...prev, savedSubmission]);
+      } catch (subErr) {
+        console.warn('Mock submission skipped (non-critical):', subErr);
+      }
+      
       setNewAssignTitle('');
       setNewAssignDeadline('');
       setAssignSuccess('Assignment created successfully! 📝');

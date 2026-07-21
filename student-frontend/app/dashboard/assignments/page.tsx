@@ -142,9 +142,9 @@ export default function StudentAssignmentsPage() {
       />
 
       {/* Assignments List Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {assignments.length === 0 ? (
-          <div className="md:col-span-2 py-16 text-center bg-card border border-muted-border/80 rounded-[2rem] text-slate-400 font-semibold">
+          <div className="md:col-span-3 py-16 text-center bg-card border border-muted-border/80 rounded-[2rem] text-slate-400 font-semibold">
             No assignments have been assigned to your courses yet.
           </div>
         ) : (
