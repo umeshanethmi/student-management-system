@@ -51,7 +51,7 @@ const tokens: ThemeTokens = {
   // Layout
   sidebar: '#04241d',
   sidebarBorder: '#0b3b30',
-  sidebarHover: '#0c3e32',
+  sidebarHover: '#d61640',
 
   // Brand primary (Deep Green)
   primary: '#10b981',
@@ -61,7 +61,7 @@ const tokens: ThemeTokens = {
   // Destructive / Error
   destructive: '#ef4444',
   destructiveHover: '#dc2626',
-  destructiveLight: '#fef2f2',
+  destructiveLight: '#1c1152',
 
   // Accent
   accent: '#5c4fe5',

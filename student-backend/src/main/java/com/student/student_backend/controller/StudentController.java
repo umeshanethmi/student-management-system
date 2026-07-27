@@ -24,8 +24,6 @@ public class StudentController {
     @Autowired
     private com.student.student_backend.repository.EnrollmentRepository enrollmentRepository;
 
-    @Autowired
-    private com.student.student_backend.repository.AttendanceRepository attendanceRepository;
 
     // [PURPOSE]: Creates a new student profile.
     // [ROLE]: ADMIN
@@ -128,34 +126,22 @@ public class StudentController {
         }
     }
 
-    // [PURPOSE]: Computes stats (course count, attendance rate, etc.) for the student dashboard.
-    // [ROLE]: STUDENT, TEACHER, ADMIN
-    // [SECURITY]: Protected (JWT, any authenticated role matches /api/students/profile/**)
-    // API to get dashboard summary (GET)
-    @GetMapping("/profile/{username}/dashboard-summary")
-    public ResponseEntity<?> getDashboardSummary(@PathVariable String username) {
-        long enrolledCount = enrollmentRepository.findByUsername(username).size();
-        
-        java.util.List<com.student.student_backend.model.Attendance> attendanceRecords = 
-            attendanceRepository.findByUsername(username);
-        String attendanceRate = "88%";
-        if (!attendanceRecords.isEmpty()) {
-            long presentCount = attendanceRecords.stream()
-                .filter(a -> "Present".equalsIgnoreCase(a.getStatus()))
-                .count();
-            attendanceRate = Math.round(((double) presentCount / attendanceRecords.size()) * 100) + "%";
-        }
-        
-        java.util.Map<String, Object> summary = new java.util.HashMap<>();
-        summary.put("attendanceRate", attendanceRate);
-        summary.put("enrolledCoursesCount", enrolledCount);
-        summary.put("pendingAssignmentsCount", 2);
-        summary.put("nextClassTime", "10:30 AM");
-        summary.put("nextClassName", "Advanced Physics");
-        summary.put("semesterDescription", "Fall 2026");
-        
-        return ResponseEntity.ok(summary);
-    }
+     // [PURPOSE]: Computes stats (course count, etc.) for the student dashboard.
+     // [ROLE]: STUDENT, TEACHER, ADMIN
+     // [SECURITY]: Protected (JWT, any authenticated role matches /api/students/profile/**)
+     // API to get dashboard summary (GET)
+     @GetMapping("/profile/{username}/dashboard-summary")
+     public ResponseEntity<?> getDashboardSummary(@PathVariable String username) {
+         long enrolledCount = enrollmentRepository.findByUsername(username).size();
+         
+         java.util.Map<String, Object> summary = new java.util.HashMap<>();
+         summary.put("enrolledCoursesCount", enrolledCount);
+         summary.put("nextClassTime", "10:30 AM");
+         summary.put("nextClassName", "Advanced Physics");
+         summary.put("semesterDescription", "Fall 2026");
+         
+         return ResponseEntity.ok(summary);
+     }
 
     // [PURPOSE]: Retrieves a chronological feed of updates for the student dashboard.
     // [ROLE]: STUDENT, TEACHER, ADMIN
@@ -166,32 +152,25 @@ public class StudentController {
         java.util.List<java.util.Map<String, String>> updates = new java.util.ArrayList<>();
         
         java.util.Map<String, String> u1 = new java.util.HashMap<>();
-        u1.put("title", "Assignment Marks Released");
-        u1.put("desc", "Physics Lab Report 3 graded: A-");
-        u1.put("time", "2 hours ago");
-        u1.put("type", "success");
+        u1.put("title", "Upcoming Exam Notice");
+        u1.put("desc", "Midterm for Data Structures on Oct 15th");
+        u1.put("time", "Yesterday");
+        u1.put("type", "warning");
         updates.add(u1);
         
         java.util.Map<String, String> u2 = new java.util.HashMap<>();
-        u2.put("title", "Upcoming Exam Notice");
-        u2.put("desc", "Midterm for Data Structures on Oct 15th");
-        u2.put("time", "Yesterday");
-        u2.put("type", "warning");
+        u2.put("title", "Library Book Due");
+        u2.put("desc", "'Introduction to Algorithms' due tomorrow");
+        u2.put("time", "2 days ago");
+        u2.put("type", "danger");
         updates.add(u2);
         
         java.util.Map<String, String> u3 = new java.util.HashMap<>();
-        u3.put("title", "Library Book Due");
-        u3.put("desc", "'Introduction to Algorithms' due tomorrow");
-        u3.put("time", "2 days ago");
-        u3.put("type", "danger");
+        u3.put("title", "System Maintenance");
+        u3.put("desc", "Portal down from 2AM to 4AM this Sunday");
+        u3.put("time", "3 days ago");
+        u3.put("type", "info");
         updates.add(u3);
-        
-        java.util.Map<String, String> u4 = new java.util.HashMap<>();
-        u4.put("title", "System Maintenance");
-        u4.put("desc", "Portal down from 2AM to 4AM this Sunday");
-        u4.put("time", "3 days ago");
-        u4.put("type", "info");
-        updates.add(u4);
         
         return ResponseEntity.ok(updates);
     }

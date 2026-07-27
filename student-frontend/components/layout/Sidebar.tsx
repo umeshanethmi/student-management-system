@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, ChevronRight, LogOut, LayoutDashboard, BookOpen, User, Bell, Settings, CheckCircle, GraduationCap } from 'lucide-react';
+import { Sparkles, ChevronRight, LogOut, LayoutDashboard, BookOpen, User, Bell, Settings, GraduationCap } from 'lucide-react';
 
 export interface MenuItem {
   id: string;

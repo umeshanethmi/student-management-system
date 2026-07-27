@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   User,
   BookOpen,
-  CheckCircle,
   GraduationCap,
   Settings,
   Sparkles,
@@ -48,11 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const roleUpper = userRole.toUpperCase();
 
     const items: MenuItem[] = [];
-    if (roleUpper === 'TEACHER') {
-      items.push({ id: 'Attendance', path: '/dashboard/teacher', icon: CheckCircle, label: 'Attendance' });
-    } else {
-      items.push({ id: 'Dashboard', path: roleUpper === 'ADMIN' ? '/admin/dashboard' : '/dashboard', icon: LayoutDashboard, label: 'Dashboard' });
-    }
+    items.push({ id: 'Dashboard', path: roleUpper === 'ADMIN' ? '/admin/dashboard' : '/dashboard', icon: LayoutDashboard, label: 'Dashboard' });
     items.push({ id: 'Courses', path: roleUpper === 'STUDENT' ? '/dashboard/register-course' : '/dashboard/courses', icon: BookOpen, label: 'Courses' });
 
     if (roleUpper === 'ADMIN') {
@@ -61,13 +56,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (roleUpper === 'STUDENT') {
       items.push(
-        { id: 'Assignments', path: '/dashboard/assignments', icon: BookOpen, label: 'Assignments' },
         { id: 'Settings', path: '/dashboard/settings', icon: Settings, label: 'Settings' },
       );
     } else if (roleUpper === 'TEACHER') {
       items.push(
         { id: 'Grading', path: '/dashboard/teacher/grading', icon: GraduationCap, label: 'Grading Portal' },
-        { id: 'Assignments', path: '/dashboard/teacher/assignments', icon: BookOpen, label: 'Assignments' },
         { id: 'Settings', path: '/dashboard/settings', icon: Settings, label: 'Settings' },
       );
     } else if (roleUpper === 'ADMIN') {

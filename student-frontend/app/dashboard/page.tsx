@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   BookOpen,
-  Clock,
   Calendar,
   ChevronRight,
   Bell,
@@ -30,9 +29,7 @@ interface Enrollment {
 }
 
 interface DashboardSummary {
-  attendanceRate: string;
   enrolledCoursesCount: number;
-  pendingAssignmentsCount: number;
   nextClassTime: string;
   nextClassName: string;
   semesterDescription: string;
@@ -119,7 +116,7 @@ export default function StudentDashboardHome() {
       </PageHeader>
 
       {/* Dynamic Summary Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatCard
           icon={<BookOpen className="text-blue-500 w-5 h-5" />}
           label="ENROLLED COURSES"
@@ -127,14 +124,6 @@ export default function StudentDashboardHome() {
           trend="Current Semester"
           trendUp={true}
           color="blue"
-        />
-        <StatCard
-          icon={<Clock className="text-rose-500 w-5 h-5" />}
-          label="PENDING ASSIGNMENTS"
-          value={`${summary.pendingAssignmentsCount} Due`}
-          trend="Needs attention"
-          trendUp={false}
-          color="rose"
         />
         <StatCard
           icon={<Calendar className="text-amber-500 w-5 h-5" />}

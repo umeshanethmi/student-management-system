@@ -102,7 +102,7 @@ export default function AdminDashboard() {
   const [teachPage, setTeachPage] = useState(1);
   const [payPage, setPayPage] = useState(1);
   const adminRowsPerPage = 5;
-
+   
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [isDeleteCourseOpen, setIsDeleteCourseOpen] = useState(false);
   const [isDeletingCourse, setIsDeletingCourse] = useState(false);
@@ -434,13 +434,13 @@ export default function AdminDashboard() {
     <div className="flex h-screen bg-[#f8fafc] bg-radial-gradient-glow text-slate-800 font-sans antialiased overflow-hidden">
       
       {/* DESKTOP SIDEBAR */}
-      <aside className="hidden md:flex md:flex-col w-64 bg-[#04241d]/95 backdrop-blur-xl border-r border-[#0e483b]/30 shrink-0 relative overflow-hidden">
+      <aside className="hidden md:flex md:flex-col w-64 bg-sidebar/95 backdrop-blur-xl border-r border-sidebar-border/30 shrink-0 relative overflow-hidden">
         {/* Background Glow inside Sidebar */}
-        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[50%] rounded-full bg-emerald-650/10 blur-[80px] pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[50%] rounded-full bg-primary/10 blur-[80px] pointer-events-none" />
         
         {/* Logo container */}
-        <div className="h-20 px-6 flex items-center gap-3 relative z-10 border-b border-[#0b3b30]/40">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+        <div className="h-20 px-6 flex items-center gap-3 relative z-10 border-b border-sidebar-border/40">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg shadow-primary/25">
             <Sparkles className="w-5 h-5 text-white animate-pulse" />
           </div>
           <span className="text-lg font-black tracking-tight text-white">AuraEdu</span>
@@ -452,8 +452,8 @@ export default function AdminDashboard() {
             onClick={() => { setActiveTab('Overview'); setIsMobileSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all ${
               activeTab === 'Overview' 
-                ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg shadow-emerald-500/20' 
-                : 'text-slate-400 hover:text-white hover:bg-[#0c3e32]/40'
+                ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-lg shadow-primary/20' 
+                : 'text-slate-400 hover:text-white hover:bg-sidebar-hover/40'
             }`}
           >
             <LayoutDashboard className="w-4 h-4" />
@@ -464,8 +464,8 @@ export default function AdminDashboard() {
             onClick={() => { setActiveTab('Students'); setIsMobileSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all ${
               activeTab === 'Students' 
-                ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg shadow-emerald-500/20' 
-                : 'text-slate-400 hover:text-white hover:bg-[#0c3e32]/40'
+                ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-lg shadow-primary/20' 
+                : 'text-slate-400 hover:text-white hover:bg-sidebar-hover/40'
             }`}
           >
             <Users className="w-4 h-4" />
@@ -476,8 +476,8 @@ export default function AdminDashboard() {
             onClick={() => { setActiveTab('Courses'); setIsMobileSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all ${
               activeTab === 'Courses' 
-                ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg shadow-emerald-500/20' 
-                : 'text-slate-400 hover:text-white hover:bg-[#0c3e32]/40'
+                ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-lg shadow-primary/20' 
+                : 'text-slate-400 hover:text-white hover:bg-sidebar-hover/40'
             }`}
           >
             <BookOpen className="w-4 h-4" />
@@ -488,8 +488,8 @@ export default function AdminDashboard() {
             onClick={() => { setActiveTab('Teachers'); setIsMobileSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all ${
               activeTab === 'Teachers' 
-                ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg shadow-emerald-500/20' 
-                : 'text-slate-400 hover:text-white hover:bg-[#0c3e32]/40'
+                ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-lg shadow-primary/20' 
+                : 'text-slate-400 hover:text-white hover:bg-sidebar-hover/40'
             }`}
           >
             <UserCheck className="w-4 h-4" />
@@ -500,8 +500,8 @@ export default function AdminDashboard() {
         </nav>
 
         {/* User profile section at the bottom */}
-        <div className="p-4 border-t border-[#0b3b30]/40 relative z-10">
-          <div className="bg-[#072d25] p-4 rounded-2xl flex items-center justify-between shadow-md">
+        <div className="p-4 border-t border-sidebar-border/40 relative z-10">
+          <div className="bg-sidebar-hover p-4 rounded-2xl flex items-center justify-between shadow-md">
             <div className="flex items-center space-x-3">
               <div className="w-9 h-9 rounded-full bg-slate-950 flex items-center justify-center font-bold text-white text-sm">
                 {adminInitials}
@@ -513,7 +513,7 @@ export default function AdminDashboard() {
             </div>
             <button 
               onClick={handleLogout}
-              className="p-2 text-slate-400 hover:text-[#ff6b6b] transition-colors"
+              className="p-2 text-slate-400 hover:text-destructive transition-colors"
               title="Logout"
             >
               <LogOut className="w-4 h-4" />
@@ -527,12 +527,12 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileSidebarOpen(false)} />
           
-          <aside className="relative flex flex-col w-64 bg-[#04241d]/95 backdrop-blur-xl border-r border-[#0e483b]/30 h-full z-10 animate-in slide-in-from-left duration-300">
-            <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[50%] rounded-full bg-emerald-650/10 blur-[80px] pointer-events-none" />
+          <aside className="relative flex flex-col w-64 bg-sidebar/95 backdrop-blur-xl border-r border-sidebar-border/30 h-full z-10 animate-in slide-in-from-left duration-300">
+            <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[50%] rounded-full bg-primary/10 blur-[80px] pointer-events-none" />
             
-            <div className="h-20 px-6 flex items-center justify-between border-b border-[#0b3b30]/40">
+            <div className="h-20 px-6 flex items-center justify-between border-b border-sidebar-border/40">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center shadow-lg">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-lg font-black tracking-tight text-white">AuraEdu</span>
@@ -547,8 +547,8 @@ export default function AdminDashboard() {
                 onClick={() => { setActiveTab('Overview'); setIsMobileSidebarOpen(false); }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all ${
                   activeTab === 'Overview' 
-                    ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg' 
-                    : 'text-slate-400 hover:text-white hover:bg-[#0c3e32]/40'
+                    ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-lg' 
+                    : 'text-slate-400 hover:text-white hover:bg-sidebar-hover/40'
                 }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
@@ -559,8 +559,8 @@ export default function AdminDashboard() {
                 onClick={() => { setActiveTab('Students'); setIsMobileSidebarOpen(false); }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all ${
                   activeTab === 'Students' 
-                    ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg' 
-                    : 'text-slate-400 hover:text-white hover:bg-[#0c3e32]/40'
+                    ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-lg' 
+                    : 'text-slate-400 hover:text-white hover:bg-sidebar-hover/40'
                 }`}
               >
                 <Users className="w-4 h-4" />
@@ -571,8 +571,8 @@ export default function AdminDashboard() {
                 onClick={() => { setActiveTab('Courses'); setIsMobileSidebarOpen(false); }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all ${
                   activeTab === 'Courses' 
-                    ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg' 
-                    : 'text-slate-400 hover:text-white hover:bg-[#0c3e32]/40'
+                    ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-lg' 
+                    : 'text-slate-400 hover:text-white hover:bg-sidebar-hover/40'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
@@ -583,8 +583,8 @@ export default function AdminDashboard() {
                 onClick={() => { setActiveTab('Teachers'); setIsMobileSidebarOpen(false); }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all ${
                   activeTab === 'Teachers' 
-                    ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg' 
-                    : 'text-slate-400 hover:text-white hover:bg-[#0c3e32]/40'
+                    ? 'bg-gradient-to-r from-primary to-primary-hover text-white shadow-lg' 
+                    : 'text-slate-400 hover:text-white hover:bg-sidebar-hover/40'
                 }`}
               >
                 <UserCheck className="w-4 h-4" />
@@ -592,8 +592,8 @@ export default function AdminDashboard() {
               </button>
             </nav>
 
-            <div className="p-4 border-t border-[#0b3b30]/40">
-              <div className="bg-[#072d25] p-4 rounded-2xl flex items-center justify-between">
+            <div className="p-4 border-t border-sidebar-border/40">
+              <div className="bg-sidebar-hover p-4 rounded-2xl flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-9 h-9 rounded-full bg-slate-950 flex items-center justify-center font-bold text-white text-sm">
                     {adminInitials}
@@ -605,7 +605,7 @@ export default function AdminDashboard() {
                 </div>
                 <button 
                   onClick={handleLogout}
-                  className="p-2 text-slate-400 hover:text-[#ff6b6b]"
+                  className="p-2 text-slate-400 hover:text-destructive"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -652,7 +652,7 @@ export default function AdminDashboard() {
             </button>
             
             <div className="bg-white border border-slate-200/80 shadow-sm p-1.5 pr-4 rounded-full flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#04241d] border border-slate-850 flex items-center justify-center font-bold text-white text-xs">
+              <div className="w-8 h-8 rounded-full bg-sidebar border border-slate-850 flex items-center justify-center font-bold text-white text-xs">
                 {adminInitials}
               </div>
               <span className="hidden sm:inline text-xs font-bold text-slate-800">{adminName}</span>
@@ -669,17 +669,17 @@ export default function AdminDashboard() {
             <div className="space-y-8 animate-in fade-in duration-300">
               
               {/* Banner exactly styled like user's reference image */}
-              <div className="p-8 rounded-[2rem] bg-gradient-to-r from-[#04241d] via-[#051d18] to-[#072d25] border border-[#0b3b30]/40 relative overflow-hidden shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="absolute right-0 top-0 w-80 h-full bg-gradient-to-l from-emerald-500/10 to-transparent pointer-events-none animate-pulse" />
+              <div className="p-8 rounded-[2rem] bg-gradient-to-r from-sidebar via-[#051d18] to-sidebar-hover border border-sidebar-border/40 relative overflow-hidden shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="absolute right-0 top-0 w-80 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none animate-pulse" />
                 <div className="flex items-start gap-5 relative z-10">
-                  <div className="w-14 h-14 bg-[#063026] border border-[#0d4d3e] rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-emerald-500/15 animate-pulse">
-                    <UserCheck className="text-[#10b981] w-8 h-8" />
+                  <div className="w-14 h-14 bg-sidebar-hover border border-sidebar-border rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-primary/15 animate-pulse">
+                    <UserCheck className="text-primary w-8 h-8" />
                   </div>
                   <div>
-                    <span className="inline-block px-3 py-1 rounded-full bg-[#0c3e32]/40 border border-[#0d4d3e]/50 text-[10px] font-bold text-[#10b981] tracking-wider mb-2.5 uppercase">
+                    <span className="inline-block px-3 py-1 rounded-full bg-sidebar-hover/40 border border-sidebar-border/50 text-[10px] font-bold text-primary tracking-wider mb-2.5 uppercase">
                       SYSTEM OPERATIONS
                     </span>
-                    <h2 className="text-3xl font-black text-[#10b981] leading-tight">
+                    <h2 className="text-3xl font-black text-primary leading-tight">
                       Support Hub
                     </h2>
                     <p className="text-white text-sm mt-1 max-w-2xl">
@@ -1668,13 +1668,19 @@ export default function AdminDashboard() {
             )}
 
             {/* Form */}
-            <form onSubmit={handleAddTeacher} className="p-6 space-y-5">
+            <form onSubmit={handleAddTeacher} className="p-6 space-y-5" autoComplete="off">
+              {/* Hidden dummy fields to absorb Chrome's credential autofill */}
+              <input type="text" name="fake-username" autoComplete="off" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+              <input type="password" name="fake-password" autoComplete="off" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Username</label>
                 <div className="relative">
                   <input
                     type="text"
+                    name="teacher-username"
                     placeholder="teacher_username"
+                    autoComplete="off"
                     value={teacherUsername}
                     onChange={(e) => setTeacherUsername(e.target.value)}
                     className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"
@@ -1689,7 +1695,9 @@ export default function AdminDashboard() {
                 <div className="relative">
                   <input
                     type="email"
+                    name="teacher-email"
                     placeholder="teacher@auraedu.com"
+                    autoComplete="off"
                     value={teacherEmail}
                     onChange={(e) => setTeacherEmail(e.target.value)}
                     className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"
@@ -1704,7 +1712,9 @@ export default function AdminDashboard() {
                 <div className="relative">
                   <input
                     type="password"
+                    name="teacher-password"
                     placeholder="••••••••"
+                    autoComplete="new-password"
                     value={teacherPassword}
                     onChange={(e) => setTeacherPassword(e.target.value)}
                     className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"
@@ -1773,13 +1783,19 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            <form onSubmit={handleEditTeacher} className="p-6 space-y-5">
+            <form onSubmit={handleEditTeacher} className="p-6 space-y-5" autoComplete="off">
+              {/* Hidden dummy fields to absorb Chrome's credential autofill */}
+              <input type="text" name="fake-username" autoComplete="off" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+              <input type="password" name="fake-password" autoComplete="off" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Username</label>
                 <div className="relative">
                   <input
                     type="text"
+                    name="teacher-username"
                     placeholder="teacher_username"
+                    autoComplete="off"
                     value={editTeacherUsername}
                     onChange={(e) => setEditTeacherUsername(e.target.value)}
                     className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"
@@ -1794,7 +1810,9 @@ export default function AdminDashboard() {
                 <div className="relative">
                   <input
                     type="email"
+                    name="teacher-email"
                     placeholder="teacher@auraedu.com"
+                    autoComplete="off"
                     value={editTeacherEmail}
                     onChange={(e) => setEditTeacherEmail(e.target.value)}
                     className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"
@@ -1809,7 +1827,9 @@ export default function AdminDashboard() {
                 <div className="relative">
                   <input
                     type="password"
+                    name="teacher-password"
                     placeholder="Enter new password if needed"
+                    autoComplete="new-password"
                     value={editTeacherPassword}
                     onChange={(e) => setEditTeacherPassword(e.target.value)}
                     className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-semibold"

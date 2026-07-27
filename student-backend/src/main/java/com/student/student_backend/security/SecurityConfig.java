@@ -53,26 +53,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/courses", "/api/courses/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/courses", "/api/courses/**").hasRole("ADMIN")
                 
-                // Attendance Controller Rules
-                .requestMatchers(HttpMethod.GET, "/api/attendance/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/attendance", "/api/attendance/**").hasAnyRole("TEACHER", "ADMIN")
-                
-                // Assignment Controller Rules
-                .requestMatchers(HttpMethod.GET, "/api/assignments", "/api/assignments/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/assignments", "/api/assignments/**").hasAnyRole("TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/assignments/**").hasAnyRole("TEACHER", "ADMIN")
-                
-                // Submission Controller Rules
-                .requestMatchers(HttpMethod.GET, "/api/submissions").hasAnyRole("TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/submissions").hasAnyRole("STUDENT", "TEACHER")
-                .requestMatchers(HttpMethod.GET, "/api/submissions/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/submissions/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/submissions/*/grade").hasRole("TEACHER")
-                
-                // ExamResult Controller Rules
-                .requestMatchers(HttpMethod.GET, "/api/exams/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/exams", "/api/exams/**").hasRole("TEACHER")
-
                 // Enrollment Controller Rules
                 .requestMatchers(HttpMethod.GET, "/api/enrollments").hasAnyRole("TEACHER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/enrollments/student/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
